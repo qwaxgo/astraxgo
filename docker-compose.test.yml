@@ -1,0 +1,84 @@
+version: "3.8"
+
+services:
+  # Unit and integration testing
+  test-runner:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: qwaxgo-test-runner
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    working_dir: /workspace
+    command: >
+      sh -c "
+      echo 'Installing test dependencies...' &&
+      npm install --save-dev vitest @vitest/ui playwright @playwright/test &&
+      echo 'Running tests...' &&
+      npm run test
+      "
+    networks:
+      - test-network
+
+  # E2E testing with Playwright
+  e2e-tests:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: qwaxgo-e2e-tests
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    working_dir: /workspace
+    command: >
+      sh -c "
+      echo 'Installing Playwright browsers...' &&
+      npx playwright install --with-deps &&
+      echo 'Running E2E tests...' &&
+      npm run test:e2e
+      "
+    depends_on:
+      - test-server
+    networks:
+      - test-network
+
+  # Test server for E2E testing
+  test-server:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: qwaxgo-test-server
+    ports:
+      - "4323:4321"
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+    environment:
+      - NODE_ENV=test
+    working_dir: /workspace
+    command: >
+      sh -c "
+      npm run build &&
+      npm run preview -- --host 0.0.0.0 --port 4321
+      "
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4321"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  node_modules:
+
+networks:
+  test-network:
+    driver: bridge

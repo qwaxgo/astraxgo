@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  # Development service
+  astro-dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: qwaxgo-astro-dev
+    ports:
+      - "4321:4321" # Astro dev server
+      - "3000:3000" # Preview server
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev -- --host 0.0.0.0
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    networks:
+      - astro-network
+
+  # Test environment
+  astro-test:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: qwaxgo-astro-test
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+    environment:
+      - NODE_ENV=test
+    command: npm test
+    working_dir: /workspace
+    depends_on:
+      - astro-dev
+    networks:
+      - astro-network
+
+  # Build and preview environment
+  astro-preview:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: qwaxgo-astro-preview
+    ports:
+      - "4322:4321" # Preview port
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+    environment:
+      - NODE_ENV=production
+    command: >
+      sh -c "npm run build && npm run preview -- --host 0.0.0.0"
+    working_dir: /workspace
+    networks:
+      - astro-network
+
+  # Lighthouse CI for performance testing
+  lighthouse:
+    image: patrickhulce/lhci-server:latest
+    container_name: qwaxgo-lighthouse
+    ports:
+      - "9001:9001"
+    environment:
+      - LHCI_BUILD_CONTEXT__CURRENT_BRANCH=main
+    depends_on:
+      - astro-preview
+    networks:
+      - astro-network
+
+volumes:
+  node_modules:
+
+networks:
+  astro-network:
+    driver: bridge

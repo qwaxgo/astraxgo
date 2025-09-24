@@ -1,4 +1,83 @@
 {
-  "recommendations": ["astro-build.astro-vscode", "unifiedjs.vscode-mdx"],
+  "recommendations": [
+    // Astro development
+    "astro-build.astro-vscode",
+    
+    // Code quality and formatting
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "editorconfig.editorconfig",
+    "streetsidesoftware.code-spell-checker",
+    
+    // CSS and styling
+    "bradlc.vscode-tailwindcss",
+    
+    // JavaScript/TypeScript development
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "xabikos.javascriptsnippets",
+    "xabikos.reactsnippets",
+    "visualstudioexptteam.vscodeintellicode-completions",
+    
+    // Git integration
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    "donjayamanne.githistory",
+    "vivaxy.vscode-conventional-commits",
+    "ziyasal.vscode-open-in-github",
+    
+    // GitHub Copilot
+    "github.copilot",
+    "github.copilot-chat",
+    
+    // Development tools
+    "formulahendry.code-runner",
+    "ms-vscode.live-server",
+    "ritwickdey.liveserver",
+    "humao.rest-client",
+    
+    // Testing
+    "ms-playwright.playwright",
+    "orta.vscode-jest",
+    "vitest.explorer",
+    
+    // Docker and containers
+    "ms-azuretools.vscode-docker",
+    "ms-azuretools.vscode-containers",
+    
+    // Markdown and documentation
+    "unifiedjs.vscode-mdx",
+    "docsmsft.docs-yaml",
+    "redhat.vscode-yaml",
+    
+    // Productivity and UI enhancements
+    "gruntfuggly.todo-tree",
+    "oderwat.indent-rainbow",
+    "naumovs.color-highlight",
+    "shardulm94.trailing-spaces",
+    "mosapride.zenkaku",
+    
+    // Shell and system
+    "bbenoist.shell",
+    "foxundermoon.shell-format",
+    
+    // Project management
+    "alefragnani.project-manager",
+    "jasonnutter.search-node-modules",
+    
+    // Utilities
+    "ms-vscode.hexeditor",
+    "codezombiech.gitignore",
+    
+    // Database tools
+    "cweijan.vscode-database-client2",
+    "cweijan.dbclient-jdbc",
+    
+    // Collaboration
+    "ms-vsliveshare.vsliveshare",
+    
+    // Language support
+    "ms-ceintl.vscode-language-pack-ja"
+  ],
   "unwantedRecommendations": []
 }
