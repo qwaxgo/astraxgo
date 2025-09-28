@@ -1,0 +1,138 @@
+<button
+  type="button"
+  class="theme-toggle"
+  data-theme-toggle
+  title="テーマを切り替え"
+  aria-pressed="false"
+>
+  <span class="sr-only" data-theme-label>ダークモードに切り替え</span>
+  <i class="fa-solid fa-moon icon icon-moon" aria-hidden="true"></i>
+  <i class="fa-solid fa-sun icon icon-sun" aria-hidden="true"></i>
+</button>
+
+<script is:inline>
+  (() => {
+    const getController = () => window.__theme;
+    const getHtmlElement = () => document.documentElement;
+    const eventName = 'themechange';
+
+    const setState = (toggle, label, theme) => {
+      if (!toggle) return;
+      const normalized = theme === 'dark' ? 'dark' : 'light';
+      const nextLabel = normalized === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え';
+
+      toggle.setAttribute('aria-pressed', normalized === 'dark' ? 'true' : 'false');
+      toggle.setAttribute('aria-label', nextLabel);
+      if (label) {
+        label.textContent = nextLabel;
+      }
+    };
+
+    const init = () => {
+      const toggle = document.querySelector('[data-theme-toggle]');
+      if (!toggle) return;
+
+      const label = toggle.querySelector('[data-theme-label]');
+      const controller = getController();
+      const currentTheme = controller?.current?.() ?? getHtmlElement().dataset.theme ?? 'light';
+      setState(toggle, label, currentTheme);
+
+      const handleThemeChange = (event) => {
+        const nextTheme = event?.detail || getController()?.current?.() || getHtmlElement().dataset.theme;
+        if (nextTheme) {
+          setState(toggle, label, nextTheme);
+        }
+      };
+
+      getHtmlElement().addEventListener(eventName, handleThemeChange);
+
+      toggle.addEventListener('click', () => {
+        const controllerInstance = getController();
+        if (controllerInstance?.toggle) {
+          const next = controllerInstance.toggle();
+          setState(toggle, label, next);
+          return;
+        }
+
+        const root = getHtmlElement();
+        const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = nextTheme;
+        root.dispatchEvent(new CustomEvent(eventName, { detail: nextTheme }));
+        setState(toggle, label, nextTheme);
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+      init();
+    }
+  })();
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-muted);
+    color: var(--heading-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .theme-toggle:hover,
+  .theme-toggle:focus-visible {
+    background: var(--surface);
+    color: var(--accent);
+    border-color: var(--accent);
+    outline: none;
+    transform: translateY(-1px);
+  }
+
+  .theme-toggle:active {
+    transform: translateY(0);
+  }
+
+  .theme-toggle:focus-visible {
+    box-shadow: 0 0 0 3px rgba(var(--gray), 0.35);
+  }
+
+  .theme-toggle .icon {
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  .theme-toggle .icon-sun {
+    display: none;
+    color: #facc15;
+  }
+
+  .theme-toggle .icon-moon {
+    color: #94a3b8;
+  }
+
+  :root[data-theme='dark'] .theme-toggle {
+    color: var(--text-color);
+  }
+
+  :root[data-theme='dark'] .theme-toggle .icon-sun {
+    display: inline-block;
+  }
+
+  :root[data-theme='dark'] .theme-toggle .icon-moon {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-toggle {
+      transition: none;
+    }
+  }
+</style>

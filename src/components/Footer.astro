@@ -43,7 +43,9 @@ const today = new Date();
 	footer {
 		padding: 2em 1em 6em 1em;
 		background: linear-gradient(var(--gray-gradient)) no-repeat;
-		color: rgb(var(--gray));
+		background-size: 100% 400px;
+		background-color: var(--surface-muted);
+		color: var(--muted-text-color);
 		text-align: center;
 	}
 	.social-links {
@@ -54,9 +56,13 @@ const today = new Date();
 	}
 	.social-links a {
 		text-decoration: none;
-		color: rgb(var(--gray));
+		color: inherit;
+		transition: color 0.2s ease;
 	}
-	.social-links a:hover {
-		color: rgb(var(--gray-dark));
+	.social-links a:hover,
+	.social-links a:focus-visible {
+		color: var(--accent);
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(var(--gray), 0.2);
 	}
 </style>

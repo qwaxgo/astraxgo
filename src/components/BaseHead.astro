@@ -20,6 +20,7 @@ const { title, description, image = FallbackImage } = Astro.props;
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link
@@ -29,6 +30,95 @@ const { title, description, image = FallbackImage } = Astro.props;
 	href={new URL('rss.xml', Astro.site)}
 />
 <meta name="generator" content={Astro.generator} />
+
+<script is:inline>
+	(() => {
+		const storageKey = 'qwaxgo-theme';
+		const doc = document.documentElement;
+		const transitionClass = 'theme-disable-transitions';
+		let transitionTimeout = 0;
+
+		const normalize = (theme) => (theme === 'dark' ? 'dark' : 'light');
+		const tryGetStoredTheme = () => {
+			try {
+				return localStorage.getItem(storageKey);
+			} catch (error) {
+				return null;
+			}
+		};
+
+		const withoutTransitions = (callback) => {
+			if (typeof callback !== 'function') return;
+			doc.classList.add(transitionClass);
+			window.clearTimeout(transitionTimeout);
+			callback();
+			transitionTimeout = window.setTimeout(() => {
+				doc.classList.remove(transitionClass);
+			}, 120);
+		};
+
+		const applyTheme = (theme, { persist = false, emit = true } = {}) => {
+			const normalized = normalize(theme);
+			doc.dataset.theme = normalized;
+			doc.classList.toggle('theme-dark', normalized === 'dark');
+			doc.classList.toggle('theme-light', normalized === 'light');
+			if (persist) {
+				try {
+					localStorage.setItem(storageKey, normalized);
+				} catch (error) {
+					/* ignore */
+				}
+			}
+			if (emit) {
+				doc.dispatchEvent(new CustomEvent('themechange', { detail: normalized }));
+			}
+		};
+
+		const initialTheme = (() => {
+			const stored = tryGetStoredTheme();
+			if (stored === 'light' || stored === 'dark') return stored;
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		})();
+
+		applyTheme(initialTheme, { persist: false, emit: false });
+
+		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+		const handleSystemChange = (event) => {
+			if (tryGetStoredTheme()) return;
+			withoutTransitions(() => applyTheme(event.matches ? 'dark' : 'light'));
+		};
+		if (typeof mediaQuery.addEventListener === 'function') {
+			mediaQuery.addEventListener('change', handleSystemChange);
+		} else if (typeof mediaQuery.addListener === 'function') {
+			mediaQuery.addListener(handleSystemChange);
+		}
+
+		window.__theme = {
+			current: () => doc.dataset.theme || 'light',
+			set: (theme, persist = true) =>
+				withoutTransitions(() => applyTheme(theme, { persist, emit: true })),
+			toggle: () => {
+				const nextTheme = doc.dataset.theme === 'dark' ? 'light' : 'dark';
+				withoutTransitions(() => applyTheme(nextTheme, { persist: true, emit: true }));
+				return nextTheme;
+			},
+			clear: () => {
+				try {
+					localStorage.removeItem(storageKey);
+				} catch (error) {
+					/* ignore */
+				}
+			},
+		};
+	})();
+</script>
+
+<link
+	rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+	crossorigin="anonymous"
+	referrerpolicy="no-referrer"
+/>
 
 <!-- Font preloads -->
 <link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin />
