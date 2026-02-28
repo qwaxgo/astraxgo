@@ -3,8 +3,10 @@
   "dockerFile": "Dockerfile",
   "context": "..",
   "workspaceFolder": "/workspace",
-
-  "forwardPorts": [4321, 3000],
+  "forwardPorts": [
+    4321,
+    3000
+  ],
   "portsAttributes": {
     "4321": {
       "label": "Astro Dev Server",
@@ -15,17 +17,20 @@
       "onAutoForward": "silent"
     }
   },
-
   "postCreateCommand": "/tmp/setup_zsh.sh && npm install",
   "postStartCommand": "echo 'DevContainer is ready! Run npm run dev to start the development server.'",
-
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-
   "remoteUser": "node",
-
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  },
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.ssh,target=/tmp/mounted_ssh,type=bind,consistency=cached",

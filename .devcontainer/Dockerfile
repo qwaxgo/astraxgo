@@ -1,7 +1,7 @@
 # Use the official Node.js LTS image with security updates
 FROM node:24-bookworm
 
-# Update system packages for security
+# Install system packages (runs as root)
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     git \
     curl \
@@ -14,21 +14,21 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     keychain \
     && rm -rf /var/lib/apt/lists/*
 
-# Install starship prompt
-RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
-
 # Install eza (modern ls replacement)
 RUN curl -fsSL https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/eza.gpg && \
     echo "deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main" > /etc/apt/sources.list.d/eza.list && \
     apt-get update && apt-get install -y eza && \
     rm -rf /var/lib/apt/lists/*
 
+# Install starship prompt
+RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+
 # Install zoxide
 RUN curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
     mv /root/.local/bin/zoxide /usr/local/bin/zoxide
 
-# Create a non-root user
-RUN useradd -ms /bin/zsh node || true
+# Ensure node user has zsh as default shell
+RUN chsh -s /bin/zsh node
 
 # Set the working directory
 WORKDIR /workspace
@@ -38,6 +38,9 @@ RUN chown -R node:node /workspace
 
 # Switch to non-root user
 USER node
+
+# Set environment variables for shell
+ENV SHELL=/bin/zsh
 
 # Install antidote (zsh plugin manager)
 RUN git clone --depth=1 https://github.com/mattmc3/antidote.git /home/node/.antidote

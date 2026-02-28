@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Note: System packages (zsh, eza, starship, zoxide, etc.) are installed in
+# the Dockerfile as root. This script handles user-level configuration only.
+
 MOUNTED_ZSHRC="/tmp/mounted_zshrc"
 MOUNTED_PLUGINS="/tmp/mounted_zsh_plugins.txt"
 MOUNTED_GITCONFIG="/home/node/.gitconfig"
