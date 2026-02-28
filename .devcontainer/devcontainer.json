@@ -4,7 +4,6 @@
   "context": "..",
   "workspaceFolder": "/workspace",
 
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [4321, 3000],
   "portsAttributes": {
     "4321": {
@@ -17,33 +16,21 @@
     }
   },
 
-  // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "/tmp/setup_zsh.sh && npm install",
+  "postStartCommand": "echo 'DevContainer is ready! Run npm run dev to start the development server.'",
 
-  // Use 'postStartCommand' to run commands after the container is started.
-  "postStartCommand": "chmod 600 /home/node/.ssh/* 2>/dev/null || true && ssh-add /home/node/.ssh/id_* 2>/dev/null || true && echo 'DevContainer is ready! Run npm run dev to start the development server.'",
-
-  // Configure Git settings
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
-  // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
   "remoteUser": "node",
 
-  // Enable SSH agent forwarding
-  "remoteEnv": {
-    "SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}"
-  },
-
-  // Run SSH agent
-  "initializeCommand": "ssh-add -l >/dev/null || ssh-add",
-
-  // Mount the workspace and SSH keys
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached",
-    "source=${env:HOME}/.gitconfig,target=/node/.gitconfig,type=bind"
+    "source=${localEnv:HOME}/.ssh,target=/tmp/mounted_ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.zshrc,target=/tmp/mounted_zshrc,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.zsh_plugins.txt,target=/tmp/mounted_zsh_plugins.txt,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached"
   ]
 }

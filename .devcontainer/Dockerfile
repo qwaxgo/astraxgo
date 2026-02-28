@@ -1,8 +1,8 @@
-# Use the official Node.js LTS image
+# Use the official Node.js LTS image with security updates
 FROM node:24-bookworm
 
-# Install additional tools and dependencies
-RUN apt-get update && apt-get install -y \
+# Update system packages for security
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     git \
     curl \
     wget \
@@ -11,7 +11,21 @@ RUN apt-get update && apt-get install -y \
     git-flow \
     build-essential \
     openssh-client \
+    keychain \
     && rm -rf /var/lib/apt/lists/*
+
+# Install starship prompt
+RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+
+# Install eza (modern ls replacement)
+RUN curl -fsSL https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/eza.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main" > /etc/apt/sources.list.d/eza.list && \
+    apt-get update && apt-get install -y eza && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install zoxide
+RUN curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
+    mv /root/.local/bin/zoxide /usr/local/bin/zoxide
 
 # Create a non-root user
 RUN useradd -ms /bin/zsh node || true
@@ -25,42 +39,16 @@ RUN chown -R node:node /workspace
 # Switch to non-root user
 USER node
 
+# Install antidote (zsh plugin manager)
+RUN git clone --depth=1 https://github.com/mattmc3/antidote.git /home/node/.antidote
+
 # Create SSH directory for the node user
 RUN mkdir -p /home/node/.ssh && \
     chmod 700 /home/node/.ssh
 
-# Create a setup script for zsh configuration
-RUN echo '#!/bin/bash' > /tmp/setup_zsh.sh && \
-    echo 'if [ -f /home/node/.zshrc ] && grep -q "oh-my-zsh" /home/node/.zshrc; then' >> /tmp/setup_zsh.sh && \
-    echo '  echo "Detected oh-my-zsh configuration in .zshrc, installing oh-my-zsh..."' >> /tmp/setup_zsh.sh && \
-    echo '  sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended' >> /tmp/setup_zsh.sh && \
-    echo 'else' >> /tmp/setup_zsh.sh && \
-    echo '  echo "No oh-my-zsh configuration detected, creating simple zsh config..."' >> /tmp/setup_zsh.sh && \
-    echo '  if [ ! -f /home/node/.zshrc ]; then' >> /tmp/setup_zsh.sh && \
-    echo '    echo "# Simple zsh configuration" > /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "# Enable colors" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "autoload -U colors && colors" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "# Set prompt" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "PROMPT=\"%{\$fg[cyan]%}%n@%m %{\$fg[yellow]%}%~ %{\$reset_color%}%# \"" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "# Enable completion" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "autoload -U compinit && compinit" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "# History configuration" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "HISTFILE=~/.zsh_history" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "HISTSIZE=10000" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "SAVEHIST=10000" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "setopt SHARE_HISTORY" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "# Useful aliases" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "alias ll=\"ls -alF\"" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "alias la=\"ls -A\"" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '    echo "alias l=\"ls -CF\"" >> /home/node/.zshrc' >> /tmp/setup_zsh.sh && \
-    echo '  fi' >> /tmp/setup_zsh.sh && \
-    echo 'fi' >> /tmp/setup_zsh.sh && \
-    chmod +x /tmp/setup_zsh.sh
+# Copy setup script
+COPY --chown=node:node .devcontainer/setup_zsh.sh /tmp/setup_zsh.sh
+RUN chmod +x /tmp/setup_zsh.sh
 
 # Configure git safe directory
 RUN git config --global --add safe.directory /workspace

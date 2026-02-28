@@ -14,4 +14,7 @@ coverage
 .DS_Store
 *.log
 .vscode/settings.json
-.devcontainer
+# Exclude devcontainer config but allow necessary files
+.devcontainer/devcontainer.json
+!.devcontainer/setup_zsh.sh
+!.devcontainer/Dockerfile
