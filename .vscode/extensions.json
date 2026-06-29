@@ -20,8 +20,8 @@
     "donjayamanne.githistory",
     "vivaxy.vscode-conventional-commits",
     "ziyasal.vscode-open-in-github",
-    // GitHub Copilot
-    "github.copilot-chat",
+    // Claude Code
+    "Anthropic.claude-code",
     // Development tools
     "formulahendry.code-runner",
     "ms-vscode.live-server",
