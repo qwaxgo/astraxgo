@@ -17,6 +17,7 @@
       "onAutoForward": "silent"
     }
   },
+  "initializeCommand": "mkdir -p $HOME/.ssh $HOME/.claude && touch $HOME/.zshrc $HOME/.zsh_plugins.txt",
   "postCreateCommand": "/tmp/setup_zsh.sh && npm install",
   "postStartCommand": "echo 'DevContainer is ready! Run npm run dev to start the development server.'",
   "features": {
@@ -36,6 +37,7 @@
     "source=${localEnv:HOME}/.ssh,target=/tmp/mounted_ssh,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.zshrc,target=/tmp/mounted_zshrc,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.zsh_plugins.txt,target=/tmp/mounted_zsh_plugins.txt,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude,target=/home/node/.claude,type=bind,consistency=cached"
   ]
 }

@@ -27,6 +27,9 @@ RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
 RUN curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
     mv /root/.local/bin/zoxide /usr/local/bin/zoxide
 
+# Install Claude Code globally
+RUN npm install -g @anthropic-ai/claude-code
+
 # Ensure node user has zsh as default shell
 RUN chsh -s /bin/zsh node
 
