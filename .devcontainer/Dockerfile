@@ -12,6 +12,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     build-essential \
     openssh-client \
     keychain \
+    ripgrep \
     && rm -rf /var/lib/apt/lists/*
 
 # Install eza (modern ls replacement)

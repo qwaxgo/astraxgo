@@ -28,7 +28,8 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "zsh"
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "search.ripgrep.path": "/usr/bin/rg"
       }
     }
   },
