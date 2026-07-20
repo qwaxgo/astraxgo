@@ -29,7 +29,8 @@
     "vscode": {
       "settings": {
         "terminal.integrated.defaultProfile.linux": "zsh",
-        "search.ripgrep.path": "/usr/bin/rg"
+        "search.ripgrep.path": "/usr/bin/rg",
+        "todo-tree.ripgrep.ripgrep":"/usr/bin/rg"
       }
     }
   },
