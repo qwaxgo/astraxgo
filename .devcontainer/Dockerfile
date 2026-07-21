@@ -46,6 +46,14 @@ USER node
 # Set environment variables for shell
 ENV SHELL=/bin/zsh
 
+# Configure npm to install global packages without requiring root permissions
+RUN mkdir -p /home/node/.npm-global && \
+    npm config set prefix '/home/node/.npm-global'
+ENV PATH=/home/node/.npm-global/bin:$PATH
+
+# Install npm-check-updates globally
+RUN npm install -g npm-check-updates
+
 # Install antidote (zsh plugin manager)
 RUN git clone --depth=1 https://github.com/mattmc3/antidote.git /home/node/.antidote
 
