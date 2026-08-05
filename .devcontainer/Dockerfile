@@ -28,6 +28,10 @@ RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
 RUN curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
     mv /root/.local/bin/zoxide /usr/local/bin/zoxide
 
+# Install the OS-level shared libraries Playwright's Chromium needs to launch
+# (the browser binary itself is installed per-user below via `npx playwright install`)
+RUN npx --yes playwright install-deps chromium && rm -rf /var/lib/apt/lists/*
+
 # Install Claude Code globally
 RUN npm install -g @anthropic-ai/claude-code
 
@@ -73,6 +77,9 @@ COPY --chown=node:node package*.json ./
 
 # Install dependencies
 RUN npm ci --only=production=false
+
+# Download the Playwright Chromium browser binary (OS deps were installed above as root)
+RUN npx playwright install chromium
 
 # Copy the rest of the application
 COPY --chown=node:node . .
