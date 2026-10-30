@@ -57,7 +57,17 @@ const structuredData = {
 						PROFILE.facts.map(fact => (
 							<div>
 								<dt>{fact.label}</dt>
-								<dd>{fact.value}</dd>
+								<dd>
+									{Array.isArray(fact.value) ? (
+										<ul class="items">
+											{fact.value.map(item => (
+												<li>{item}</li>
+											))}
+										</ul>
+									) : (
+										fact.value
+									)}
+								</dd>
 							</div>
 						))
 					}
@@ -70,7 +80,13 @@ const structuredData = {
 							FAVORITES.map(group => (
 								<div>
 									<dt>{group.category}</dt>
-									<dd>{group.items.join('、')}</dd>
+									<dd>
+										<ul class="items">
+											{group.items.map(item => (
+												<li>{item}</li>
+											))}
+										</ul>
+									</dd>
 								</div>
 							))
 						}
@@ -149,6 +165,22 @@ const structuredData = {
 	}
 	dd {
 		margin: 0;
+	}
+	.items {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4em;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.items li {
+		padding: 0.15em 0.7em;
+		border: 1px solid var(--border-color);
+		border-radius: 999px;
+		background: var(--surface-muted);
+		font-size: 0.9em;
+		line-height: 1.6;
 	}
 	.favorites {
 		margin-top: 1.5em;

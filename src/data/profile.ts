@@ -1,19 +1,53 @@
 // Profile shown on /about. Edit the text here; the page only lays it out.
+// A fact's value is a single text, or a list of items shown as a list.
 
-export const PROFILE = {
+export const PROFILE: {
+	name: string;
+	reading: string;
+	facts: { label: string; value: string | string[] }[];
+} = {
 	name: 'qwaxgo',
 	reading: 'くわっくすごー',
 	facts: [
 		{ label: '国籍', value: '日本' },
 		{ label: '年齢', value: '成人済み' },
 		{ label: '職業', value: 'セキュリティエンジニア' },
-		{ label: '趣味', value: 'ITやTechに関すること、アニメ、ゲーム、個人VTuber視聴、ネットミーム' },
+		{
+			label: '趣味',
+			value: [
+				'ITやTechに関すること',
+				'アニメ',
+				'ゲーム',
+				'個人VTuber視聴',
+				'ネットミーム',
+			],
+		},
 		{
 			label: '好きな作品',
-			value:
-				'デジモン、ソニック、遊戯王、ドラゴンボール、Super Mario Bros.Z、モンスターハンター、Minecraft、進撃の巨人、ジョジョの奇妙な冒険、ゼノブレイド、ポケモン、仮面ライダーシリーズ',
+			value: [
+				'デジモン',
+				'ソニック',
+				'遊戯王',
+				'ドラゴンボール',
+				'Super Mario Bros.Z',
+				'モンスターハンター',
+				'Minecraft',
+				'進撃の巨人',
+				'ジョジョの奇妙な冒険',
+				'ゼノブレイド',
+				'ポケモン',
+				'仮面ライダーシリーズ',
+			],
 		},
-		{ label: '特技', value: 'イラストを描くこと、ドット絵を描くこと、コンピューターの操作、創作' },
+		{
+			label: '特技',
+			value: [
+				'イラストを描くこと',
+				'ドット絵を描くこと',
+				'コンピューターの操作',
+				'創作',
+			],
+		},
 	],
 };
 
