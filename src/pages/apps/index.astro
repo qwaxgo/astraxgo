@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
+import AppDetail from '../../components/AppDetail.astro';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
@@ -25,7 +26,7 @@ const entries = (await getCollection('apps', ({ data }) => !data.draft))
 				{
 					entries.map(({ entry, screenshot }) => (
 						<li>
-							<a class="detail" href={`/apps/${entry.id}/`}>
+							<a class="detail" href={`/apps/${entry.id}/`} data-app-id={entry.id}>
 								<div class="thumb">
 									{screenshot && (
 										<Image src={screenshot} alt="" widths={[400, 800]} sizes="400px" />
@@ -46,10 +47,70 @@ const entries = (await getCollection('apps', ({ data }) => !data.draft))
 					))
 				}
 			</ul>
+			{
+				entries.map(({ entry }) => (
+					<dialog class="app-dialog" id={`app-${entry.id}`} aria-labelledby={`app-${entry.id}-title`}>
+						<div class="dialog-body">
+							<button type="button" class="close" aria-label="閉じる" data-close autofocus>
+								×
+							</button>
+							<h2 id={`app-${entry.id}-title`}>{entry.data.title}</h2>
+							<p class="dialog-meta">
+								<FormattedDate date={entry.data.pubDate} />
+								{entry.data.tags.map(tag => (
+									<span class="tag">#{tag}</span>
+								))}
+							</p>
+							<AppDetail entry={entry} />
+						</div>
+					</dialog>
+				))
+			}
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<script>
+	// Cards link to /apps/<id>/ (the no-JS fallback); with JS they open the app's
+	// popup instead and put #<id> in the URL so the popup itself can be shared.
+	const dialogFor = (id: string) =>
+		document.getElementById(`app-${id}`) as HTMLDialogElement | null;
+
+	function openApp(id: string) {
+		const dialog = dialogFor(id);
+		if (!dialog) return false;
+		dialog.showModal();
+		history.replaceState(null, '', `#${id}`);
+		return true;
+	}
+
+	document.querySelectorAll<HTMLAnchorElement>('a[data-app-id]').forEach(link => {
+		link.addEventListener('click', event => {
+			if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+			if (openApp(link.dataset.appId!)) event.preventDefault();
+		});
+	});
+
+	document.querySelectorAll<HTMLDialogElement>('.app-dialog').forEach(dialog => {
+		dialog.addEventListener('close', () =>
+			history.replaceState(null, '', location.pathname + location.search),
+		);
+		dialog.addEventListener('click', event => {
+			// The <dialog> itself is only the click target when the backdrop is clicked.
+			if (event.target === dialog || (event.target as HTMLElement).closest('[data-close]')) {
+				dialog.close();
+			}
+		});
+	});
+
+	const openFromHash = () => {
+		const id = decodeURIComponent(location.hash.slice(1));
+		if (id && !dialogFor(id)?.open) openApp(id);
+	};
+	window.addEventListener('hashchange', openFromHash);
+	openFromHash();
+</script>
 
 <style>
 	.app-list {
@@ -125,6 +186,58 @@ const entries = (await getCollection('apps', ({ data }) => !data.draft))
 	.open:hover,
 	.open:focus-visible {
 		box-shadow: 0 0 0 3px var(--accent);
+		outline: none;
+	}
+	.app-dialog {
+		width: min(760px, calc(100% - 2em));
+		max-height: calc(100% - 2em);
+		padding: 0;
+		border: none;
+		border-radius: 16px;
+		background: var(--surface);
+		color: var(--text-color);
+		box-shadow: var(--elevated-shadow);
+	}
+	.app-dialog::backdrop {
+		background: rgb(0 0 0 / 0.55);
+	}
+	.dialog-body {
+		position: relative;
+		padding: 2em 1.5em 1.5em;
+	}
+	.dialog-body h2 {
+		margin: 0 2em 0.3em 0;
+		line-height: 1.3;
+	}
+	.dialog-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75em;
+		margin: 0 0 1.25em 0;
+		color: var(--muted-text-color);
+		font-size: 0.9em;
+	}
+	.dialog-meta .tag {
+		color: var(--accent);
+	}
+	.close {
+		position: absolute;
+		top: 0.75em;
+		right: 0.75em;
+		width: 2.25em;
+		height: 2.25em;
+		border: 1px solid var(--border-color);
+		border-radius: 999px;
+		background: var(--surface);
+		color: var(--heading-color);
+		font-size: 1.1em;
+		line-height: 1;
+		cursor: pointer;
+	}
+	.close:hover,
+	.close:focus-visible {
+		border-color: var(--accent);
+		color: var(--accent);
 		outline: none;
 	}
 </style>

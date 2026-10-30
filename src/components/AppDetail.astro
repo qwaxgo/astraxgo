@@ -1,0 +1,74 @@
+---
+import { Image } from 'astro:assets';
+import { type CollectionEntry, render } from 'astro:content';
+import { getAppScreenshot } from '../lib/appScreenshots';
+
+interface Props {
+	entry: CollectionEntry<'apps'>;
+}
+
+// Body of an app's detail: shared by /apps/<id>/ and the popup on /apps/.
+const { entry } = Astro.props;
+const { title, url, repoUrl } = entry.data;
+const screenshot = getAppScreenshot(entry.id);
+const { Content } = await render(entry);
+---
+
+{
+	screenshot && (
+		<a class="screenshot" href={url} target="_blank" rel="noopener">
+			<Image src={screenshot} alt={`${title}のトップページ`} widths={[720, 1280]} sizes="720px" />
+		</a>
+	)
+}
+<div class="app-actions">
+	<a class="open" href={url} target="_blank" rel="noopener">アプリを開く ↗</a>
+	<a class="repo" href={repoUrl} target="_blank" rel="noopener">GitHub</a>
+</div>
+<Content />
+
+<style>
+	.screenshot {
+		display: block;
+		margin-bottom: 1.5em;
+		border: 1px solid var(--border-color);
+		border-radius: 12px;
+		overflow: hidden;
+		box-shadow: var(--box-shadow);
+		transition: box-shadow 0.15s ease;
+	}
+	.screenshot:hover {
+		box-shadow: 0 0 0 3px var(--accent);
+	}
+	.screenshot img {
+		display: block;
+		width: 100%;
+		height: auto;
+		margin: 0;
+		border-radius: 0;
+	}
+	.app-actions {
+		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 0.75em;
+		margin-bottom: 2em;
+	}
+	.app-actions a {
+		padding: 0.6em 1.4em;
+		border-radius: 999px;
+		font-weight: 700;
+		text-decoration: none;
+	}
+	.app-actions .open {
+		background: var(--accent);
+		color: #fff;
+	}
+	.app-actions .repo {
+		border: 1px solid var(--border-color);
+		color: var(--heading-color);
+	}
+	.app-actions a:hover {
+		box-shadow: 0 0 0 3px var(--accent);
+	}
+</style>
