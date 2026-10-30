@@ -7,7 +7,8 @@ interface Props {
 const { src, alt } = Astro.props;
 
 // The image host sends no CORS headers, so WebGL can't sample it directly in the
-// browser. Skins are only a few KB, so inline them as data URIs at render time.
+// browser, and `<a download>` is ignored for cross-origin URLs. Skins are only a
+// few KB, so inline them as data URIs at render time for both.
 async function toDataUrl(url: string): Promise<string | undefined> {
 	try {
 		const res = await fetch(url);
@@ -21,28 +22,69 @@ async function toDataUrl(url: string): Promise<string | undefined> {
 }
 
 const skin = await toDataUrl(src);
+const fileName = decodeURIComponent(new URL(src).pathname.split('/').pop() || 'skin.png');
+
+// images.qwaxgo.com rejects foreign Referers (hotlink protection), so localhost
+// must send none during dev. Production keeps the default qwaxgo.com Referer.
+const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 ---
 
 {
-	skin && (
+	skin ? (
 		<div class="skin-viewer" data-skin={skin}>
-			<canvas aria-label={`${alt}（3D表示・ドラッグで回転）`} />
+			<div class="stage">
+				<canvas aria-label={`${alt}（3D表示・ドラッグで回転）`} />
+			</div>
+			<div class="toolbar" role="toolbar" aria-label="3D表示の操作">
+				<button type="button" data-action="zoom-in" aria-label="拡大" title="拡大">
+					＋
+				</button>
+				<button type="button" data-action="zoom-out" aria-label="縮小" title="縮小">
+					−
+				</button>
+				<button type="button" data-action="rotate-left" aria-label="左に回転" title="左に回転">
+					⟲
+				</button>
+				<button type="button" data-action="rotate-right" aria-label="右に回転" title="右に回転">
+					⟳
+				</button>
+				<button
+					type="button"
+					data-action="auto-rotate"
+					aria-label="自動回転"
+					title="自動回転"
+					aria-pressed="true"
+				>
+					↻ 自動
+				</button>
+			</div>
+			<a class="download" href={skin} download={fileName}>
+				スキンをダウンロード
+			</a>
 		</div>
+	) : (
+		<img src={src} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
 	)
 }
 
 <script>
 	import { IdleAnimation, SkinViewer } from 'skinview3d';
 
+	const ZOOM_STEP = 0.15;
+	const ZOOM_MIN = 0.4;
+	const ZOOM_MAX = 2;
+	const ROTATE_STEP = Math.PI / 4;
+
 	function initViewer(container: HTMLElement) {
-		const canvas = container.querySelector('canvas');
+		const stage = container.querySelector<HTMLElement>('.stage');
+		const canvas = stage?.querySelector('canvas');
 		const skin = container.dataset.skin;
-		if (!canvas || !skin) return;
+		if (!stage || !canvas || !skin) return;
 
 		const viewer = new SkinViewer({
 			canvas,
-			width: container.clientWidth,
-			height: container.clientHeight,
+			width: stage.clientWidth,
+			height: stage.clientHeight,
 			skin,
 			animation: new IdleAnimation(),
 		});
@@ -50,9 +92,35 @@ const skin = await toDataUrl(src);
 		viewer.autoRotateSpeed = 0.6;
 		viewer.controls.enableZoom = false;
 
-		new ResizeObserver(() => viewer.setSize(container.clientWidth, container.clientHeight)).observe(
-			container,
-		);
+		const autoRotateButton = container.querySelector<HTMLButtonElement>('[data-action="auto-rotate"]');
+		const setAutoRotate = (on: boolean) => {
+			viewer.autoRotate = on;
+			autoRotateButton?.setAttribute('aria-pressed', String(on));
+		};
+
+		container.querySelector('.toolbar')?.addEventListener('click', event => {
+			const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button');
+			switch (button?.dataset.action) {
+				case 'zoom-in':
+					viewer.zoom = Math.min(ZOOM_MAX, viewer.zoom + ZOOM_STEP);
+					break;
+				case 'zoom-out':
+					viewer.zoom = Math.max(ZOOM_MIN, viewer.zoom - ZOOM_STEP);
+					break;
+				case 'rotate-left':
+				case 'rotate-right':
+					// Stepping while auto-rotating would be lost in the motion, so stop it.
+					setAutoRotate(false);
+					viewer.playerWrapper.rotation.y +=
+						button.dataset.action === 'rotate-left' ? -ROTATE_STEP : ROTATE_STEP;
+					break;
+				case 'auto-rotate':
+					setAutoRotate(!viewer.autoRotate);
+					break;
+			}
+		});
+
+		new ResizeObserver(() => viewer.setSize(stage.clientWidth, stage.clientHeight)).observe(stage);
 	}
 
 	// Each viewer holds a WebGL context, so only create them once they scroll into
@@ -69,15 +137,64 @@ const skin = await toDataUrl(src);
 
 <style>
 	.skin-viewer {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.75em;
 		width: 100%;
 		max-width: 320px;
+	}
+	.stage {
+		width: 100%;
 		aspect-ratio: 3 / 4;
 		cursor: grab;
 	}
-	.skin-viewer:active {
+	.stage:active {
 		cursor: grabbing;
 	}
-	.skin-viewer canvas {
+	.stage canvas {
 		display: block;
+	}
+	.toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.4em;
+	}
+	.toolbar button {
+		min-width: 2.5em;
+		height: 2.5em;
+		padding: 0 0.6em;
+		border: 1px solid var(--border-color);
+		border-radius: 8px;
+		background: var(--surface);
+		color: var(--heading-color);
+		font: inherit;
+		font-size: 0.95em;
+		cursor: pointer;
+	}
+	.toolbar button:hover,
+	.toolbar button:focus-visible {
+		border-color: var(--accent);
+		color: var(--accent);
+		outline: none;
+	}
+	.toolbar button[aria-pressed='true'] {
+		background: var(--accent);
+		border-color: var(--accent);
+		color: #fff;
+	}
+	.download {
+		padding: 0.6em 1.4em;
+		border-radius: 999px;
+		background: var(--accent);
+		color: #fff;
+		font-weight: 700;
+		text-decoration: none;
+	}
+	.download:hover,
+	.download:focus-visible {
+		box-shadow: 0 0 0 3px var(--accent);
+		outline: none;
 	}
 </style>

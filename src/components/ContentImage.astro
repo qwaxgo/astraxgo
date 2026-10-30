@@ -37,14 +37,20 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 				</span>
 			</summary>
 			<div class:list={['content-image', mode]}>
-				{mode === 'mcskin' && <SkinViewer src={imagePath} alt={alt} />}
-				<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
+				{mode === 'mcskin' ? (
+					<SkinViewer src={imagePath} alt={alt} />
+				) : (
+					<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
+				)}
 			</div>
 		</details>
 	) : (
 		<div class:list={['content-image', mode]}>
-			{mode === 'mcskin' && <SkinViewer src={imagePath} alt={alt} />}
-			<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
+			{mode === 'mcskin' ? (
+				<SkinViewer src={imagePath} alt={alt} />
+			) : (
+				<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
+			)}
 		</div>
 	)
 }
