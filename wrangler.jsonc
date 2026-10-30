@@ -1,0 +1,11 @@
+// Deploys the static build (`npm run build` → dist/) as a Worker with static assets.
+// Without this file, `wrangler deploy` in Workers Builds auto-configures the project
+// by adding the Astro Cloudflare adapter, which this fully static site doesn't use.
+{
+	"name": "astraxgo",
+	"compatibility_date": "2026-10-01",
+	"assets": {
+		"directory": "./dist",
+		"not_found_handling": "404-page"
+	}
+}
