@@ -1,6 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { SITE_AUTHOR } from './consts';
+import { appUrls } from './lib/appUrls';
 
 const baseSchema = z.object({
 	title: z.string(),
@@ -37,4 +38,21 @@ const mcskins = defineCollection({
 	schema: baseSchema.extend({ contentImages: galleryContentSchema }),
 });
 
-export const collections = { blog, pictures, mcskins };
+// Apps live in this account's GitHub Pages. Frontmatter only names the repository
+// (and optionally a path inside its Pages site); the public URL and repository URL
+// are derived here so every entry points at https://<GITHUB_USER>.github.io.
+const apps = defineCollection({
+	loader: glob({ base: './src/content/apps', pattern: '**/*.{md,mdx}' }),
+	schema: baseSchema
+		.extend({
+			repo: z.string().regex(/^[\w.-]+$/, 'repo is a repository name, not a URL'),
+			path: z
+				.string()
+				.regex(/^[^:]*$/, 'path is relative to the Pages site, not a URL')
+				.optional()
+				.default(''),
+		})
+		.transform(data => ({ ...data, ...appUrls(data.repo, data.path) })),
+});
+
+export const collections = { blog, pictures, mcskins, apps };

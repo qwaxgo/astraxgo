@@ -7,7 +7,7 @@ import { buildImageOptions, buildStaticImageOptions } from '../../_ogHelper';
 const THEMES = ['light', 'dark'] as const;
 type Theme = (typeof THEMES)[number];
 
-const ENTRY_COLLECTIONS = ['blog', 'pictures', 'mcskins'] as const;
+const ENTRY_COLLECTIONS = ['blog', 'pictures', 'mcskins', 'apps'] as const;
 type EntryCollection = (typeof ENTRY_COLLECTIONS)[number];
 
 type Props =
