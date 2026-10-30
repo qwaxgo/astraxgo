@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "screenshot:apps": "node scripts/screenshot-apps.ts"
+    "screenshot:apps": "node scripts/screenshot-apps.ts",
+    "render:skins": "node scripts/render-skin-thumbnails.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.3",

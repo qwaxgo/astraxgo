@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import { getSkinThumbnail } from '../lib/skinThumbnails';
 import FormattedDate from './FormattedDate.astro';
 
 interface Props {
@@ -10,6 +12,12 @@ interface Props {
 
 const { entries, basePath, thumbnailMode } = Astro.props;
 
+// Skins use a still rendered from the 3D preview when one exists.
+const items = entries.map(entry => ({
+	entry,
+	rendered: basePath === 'mcskins' ? getSkinThumbnail(entry.id) : undefined,
+}));
+
 // images.qwaxgo.com rejects foreign Referers (hotlink protection), so localhost
 // must send none during dev. Production keeps the default qwaxgo.com Referer.
 const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
@@ -17,16 +25,20 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 
 <ul class="content-grid">
 	{
-		entries.map(entry => (
+		items.map(({ entry, rendered }) => (
 			<li>
 				<a href={`/${basePath}/${entry.id}/`}>
-					<div class:list={['thumb', thumbnailMode]}>
-						<img
-							src={entry.data.contentImages[0]}
-							alt=""
-							loading="lazy"
-							referrerpolicy={referrerPolicy}
-						/>
+					<div class:list={['thumb', thumbnailMode, { rendered }]}>
+						{rendered ? (
+							<Image src={rendered} alt="" widths={[300, 600]} sizes="300px" />
+						) : (
+							<img
+								src={entry.data.contentImages[0]}
+								alt=""
+								loading="lazy"
+								referrerpolicy={referrerPolicy}
+							/>
+						)}
 					</div>
 					<h3 class="title">{entry.data.title}</h3>
 					<p class="date">
@@ -91,6 +103,12 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 	}
 	.thumb.mcskin img {
 		width: 55%;
+	}
+	.thumb.rendered img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		image-rendering: auto;
 	}
 	.thumb.pixelart img {
 		width: 100%;

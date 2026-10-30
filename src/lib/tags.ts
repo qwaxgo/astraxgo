@@ -1,6 +1,7 @@
 import type { ImageMetadata } from 'astro';
 import { getCollection } from 'astro:content';
 import { getAppScreenshot } from './appScreenshots';
+import { getSkinThumbnail } from './skinThumbnails';
 
 export const TAGGED_COLLECTIONS = ['blog', 'pictures', 'mcskins', 'apps'] as const;
 export type TaggedCollection = (typeof TAGGED_COLLECTIONS)[number];
@@ -72,7 +73,7 @@ export async function getTaggedEntries(): Promise<TaggedEntry[]> {
 		...mcskins.map(e => ({
 			...common('mcskins', e),
 			href: `/mcskins/${e.id}/`,
-			thumbnail: e.data.contentImages[0],
+			thumbnail: getSkinThumbnail(e.id) ?? e.data.contentImages[0],
 			images: e.data.contentImages,
 		})),
 		// Apps open in the popup on the list page.
