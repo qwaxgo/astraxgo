@@ -4,7 +4,9 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
+import JsonLd from '../components/JsonLd.astro';
 import TagLinks from '../components/TagLinks.astro';
+import { entryLd } from '../lib/structuredData';
 
 type Collection = 'pictures' | 'mcskins' | 'apps';
 
@@ -16,11 +18,28 @@ type Props = CollectionEntry<Collection>['data'] & {
 const { title, description, author, pubDate, updatedDate, tags, id, collection } = Astro.props;
 const ogSlug = id.replace(/\.(md|mdx)$/, '');
 const ogImageUrl = `/og/light/${collection}/${ogSlug}.png`;
+
+const site = Astro.site!;
+const props = Astro.props;
+const structuredData = entryLd({
+	collection,
+	url: new URL(Astro.url.pathname, site),
+	site,
+	title,
+	description,
+	author,
+	pubDate,
+	updatedDate,
+	tags,
+	images: [...('contentImages' in props ? props.contentImages : []), new URL(ogImageUrl, site).href],
+	appUrl: 'url' in props ? props.url : undefined,
+});
 ---
 
 <html lang="ja">
 	<head>
 		<BaseHead title={title} description={description} ogImageUrl={ogImageUrl} />
+		<JsonLd data={structuredData} />
 	</head>
 
 	<body>
