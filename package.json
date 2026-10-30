@@ -18,7 +18,6 @@
     "skinview3d": "^3.4.2"
   },
   "devDependencies": {
-    "playwright": "^1.61.1",
-    "wrangler": "^4.156.0"
+    "playwright": "^1.61.1"
   }
 }
