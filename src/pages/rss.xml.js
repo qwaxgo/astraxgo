@@ -3,14 +3,22 @@ import rss from '@astrojs/rss';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 export async function GET(context) {
-	const posts = await getCollection('blog');
+	const [blogPosts, pictures, mcskins] = await Promise.all([
+		getCollection('blog', ({ data }) => !data.draft),
+		getCollection('pictures', ({ data }) => !data.draft),
+		getCollection('mcskins', ({ data }) => !data.draft),
+	]);
+
+	const items = [
+		...blogPosts.map((post) => ({ ...post.data, link: `/blog/${post.id}/` })),
+		...pictures.map((post) => ({ ...post.data, link: `/pictures/${post.id}/` })),
+		...mcskins.map((post) => ({ ...post.data, link: `/mcskins/${post.id}/` })),
+	].sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf());
+
 	return rss({
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,
 		site: context.site,
-		items: posts.map((post) => ({
-			...post.data,
-			link: `/blog/${post.id}/`,
-		})),
+		items,
 	});
 }
