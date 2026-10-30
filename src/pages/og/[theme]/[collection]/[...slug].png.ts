@@ -16,7 +16,7 @@ type Props =
 
 /** Static pages that are not part of a content collection */
 const STATIC_PAGES: Record<string, StaticPageMeta> = {
-	about: { title: 'About Me', description: 'About this site' },
+	about: { title: 'About', description: 'qwaxgo（くわっくすごー）のプロフィール' },
 	index: { title: 'Home', description: 'Blog top page' },
 };
 

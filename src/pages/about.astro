@@ -1,68 +1,177 @@
 ---
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
-import Layout from '../layouts/BlogPost.astro';
+import { Image } from 'astro:assets';
+import icon from '../assets/profile/icon.png';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import JsonLd from '../components/JsonLd.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import { ICON_CREDIT, SOCIAL_LINKS } from '../consts';
+import { FAVORITES, PROFILE } from '../data/profile';
+
+const description = `${PROFILE.name}（${PROFILE.reading}）のプロフィール`;
+
+// Lets search engines and AI crawlers tie the listed accounts to this person.
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'ProfilePage',
+	url: new URL('/about/', Astro.site).href,
+	mainEntity: {
+		'@type': 'Person',
+		name: PROFILE.name,
+		alternateName: PROFILE.reading,
+		jobTitle: PROFILE.facts.find(fact => fact.label === '職業')?.value,
+		image: new URL(icon.src, Astro.url).href,
+		sameAs: SOCIAL_LINKS.map(link => link.href),
+	},
+};
 ---
 
-<Layout
-	id="about"
-	title="About Me"
-	description="Lorem ipsum dolor sit amet"
-	pubDate={new Date('August 08 2021')}
-	heroImage={AboutHeroImage}
-	tags={[]}
-	feature={false}
-	draft={false}
-	ogStyle="simple"
->
-	<p>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-		labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
-		viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam
-		adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus
-		et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus
-		vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque
-		sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
-	</p>
+<!doctype html>
+<html lang="ja">
+	<head>
+		<BaseHead title="About" description={description} ogImageUrl="/og/light/page/about.png" />
+		<JsonLd data={structuredData} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="card">
+				<figure class="icon">
+					<Image src={icon} alt={`${PROFILE.name}のアイコン`} width={240} densities={[1, 2]} />
+					<figcaption>
+						アイコン: <a href={ICON_CREDIT.href} target="_blank" rel="noopener">{ICON_CREDIT.handle}</a>
+					</figcaption>
+				</figure>
+				<h1>
+					{PROFILE.name}
+					<span class="reading">{PROFILE.reading}</span>
+				</h1>
+				<SocialLinks labels />
+			</section>
 
-	<p>
-		Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non
-		tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non
-		blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna
-		porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis
-		massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc.
-		Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis
-		bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra
-		massa massa ultricies mi.
-	</p>
+			<section class="profile">
+				<h2>プロフィール</h2>
+				<dl class="facts">
+					{
+						PROFILE.facts.map(fact => (
+							<div>
+								<dt>{fact.label}</dt>
+								<dd>{fact.value}</dd>
+							</div>
+						))
+					}
+				</dl>
 
-	<p>
-		Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl
-		suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet
-		nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae
-		turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem
-		dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat
-		semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus
-		vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum
-		facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam
-		vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla
-		urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
-	</p>
+				<details class="favorites">
+					<summary>好きなもの</summary>
+					<dl>
+						{
+							FAVORITES.map(group => (
+								<div>
+									<dt>{group.category}</dt>
+									<dd>{group.items.join('、')}</dd>
+								</div>
+							))
+						}
+					</dl>
+				</details>
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
 
-	<p>
-		Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper
-		viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc
-		scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur
-		gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus
-		pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim
-		blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id
-		cursus metus aliquam eleifend mi.
-	</p>
+<style>
+	main {
+		width: 720px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+		padding: 3em 1em;
+	}
+	.card {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1em;
+		margin-bottom: 3em;
+		text-align: center;
+	}
+	.icon {
+		margin: 0;
+	}
+	.icon img {
+		display: block;
+		width: 160px;
+		height: 160px;
+		margin: 0 auto;
+		border-radius: 50%;
+		box-shadow: var(--box-shadow);
+	}
+	.icon figcaption {
+		margin-top: 0.5em;
+		color: var(--muted-text-color);
+		font-size: 0.8em;
+	}
+	h1 {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin: 0;
+		line-height: 1.2;
+	}
+	.reading {
+		color: var(--muted-text-color);
+		font-size: 0.45em;
+		font-weight: 400;
+	}
+	.card :global(.social-links) {
+		width: 100%;
+	}
 
-	<p>
-		Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta
-		nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam
-		tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci
-		ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar
-		proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
-	</p>
-</Layout>
+	.profile h2 {
+		margin: 0 0 0.75em 0;
+		font-size: 1.4rem;
+	}
+	dl {
+		margin: 0;
+	}
+	dl > div {
+		display: grid;
+		grid-template-columns: 8em 1fr;
+		gap: 1em;
+		padding: 0.75em 0;
+		border-bottom: 1px solid var(--border-color);
+	}
+	dt {
+		color: var(--heading-color);
+		font-weight: 700;
+	}
+	dd {
+		margin: 0;
+	}
+	.favorites {
+		margin-top: 1.5em;
+		border: 1px solid var(--border-color);
+		border-radius: 12px;
+		background: var(--surface);
+	}
+	.favorites summary {
+		padding: 0.9em 1.25em;
+		color: var(--heading-color);
+		font-weight: 700;
+		cursor: pointer;
+	}
+	.favorites dl {
+		padding: 0 1.25em 0.5em;
+	}
+	.favorites dl > div:last-child {
+		border-bottom: none;
+	}
+	@media (max-width: 560px) {
+		dl > div {
+			grid-template-columns: 1fr;
+			gap: 0.25em;
+		}
+	}
+</style>
