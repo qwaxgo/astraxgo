@@ -40,7 +40,7 @@ const mcskins = defineCollection({
 
 // Apps live in this account's GitHub Pages. Frontmatter only names the repository
 // (and optionally a path inside its Pages site); the public URL and repository URL
-// are derived here so every entry points at https://<GITHUB_USER>.github.io.
+// are derived here so every entry points at APPS_ORIGIN.
 const apps = defineCollection({
 	loader: glob({ base: './src/content/apps', pattern: '**/*.{md,mdx}' }),
 	schema: baseSchema
