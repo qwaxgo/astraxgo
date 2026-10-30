@@ -1,0 +1,83 @@
+---
+interface Props {
+	src: string;
+	alt: string;
+}
+
+const { src, alt } = Astro.props;
+
+// The image host sends no CORS headers, so WebGL can't sample it directly in the
+// browser. Skins are only a few KB, so inline them as data URIs at render time.
+async function toDataUrl(url: string): Promise<string | undefined> {
+	try {
+		const res = await fetch(url);
+		if (!res.ok) return undefined;
+		const type = res.headers.get('content-type') ?? 'image/png';
+		const base64 = Buffer.from(await res.arrayBuffer()).toString('base64');
+		return `data:${type};base64,${base64}`;
+	} catch {
+		return undefined;
+	}
+}
+
+const skin = await toDataUrl(src);
+---
+
+{
+	skin && (
+		<div class="skin-viewer" data-skin={skin}>
+			<canvas aria-label={`${alt}（3D表示・ドラッグで回転）`} />
+		</div>
+	)
+}
+
+<script>
+	import { IdleAnimation, SkinViewer } from 'skinview3d';
+
+	function initViewer(container: HTMLElement) {
+		const canvas = container.querySelector('canvas');
+		const skin = container.dataset.skin;
+		if (!canvas || !skin) return;
+
+		const viewer = new SkinViewer({
+			canvas,
+			width: container.clientWidth,
+			height: container.clientHeight,
+			skin,
+			animation: new IdleAnimation(),
+		});
+		viewer.autoRotate = true;
+		viewer.autoRotateSpeed = 0.6;
+		viewer.controls.enableZoom = false;
+
+		new ResizeObserver(() => viewer.setSize(container.clientWidth, container.clientHeight)).observe(
+			container,
+		);
+	}
+
+	// Each viewer holds a WebGL context, so only create them once they scroll into
+	// view. Viewers inside a closed spoiler <details> start when it is opened.
+	const observer = new IntersectionObserver(entries => {
+		for (const entry of entries) {
+			if (!entry.isIntersecting) continue;
+			observer.unobserve(entry.target);
+			initViewer(entry.target as HTMLElement);
+		}
+	});
+	document.querySelectorAll<HTMLElement>('.skin-viewer').forEach(el => observer.observe(el));
+</script>
+
+<style>
+	.skin-viewer {
+		width: 100%;
+		max-width: 320px;
+		aspect-ratio: 3 / 4;
+		cursor: grab;
+	}
+	.skin-viewer:active {
+		cursor: grabbing;
+	}
+	.skin-viewer canvas {
+		display: block;
+	}
+</style>

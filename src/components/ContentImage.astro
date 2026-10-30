@@ -1,4 +1,6 @@
 ---
+import SkinViewer from './SkinViewer.astro';
+
 interface Props {
 	imagePath: string;
 	alt: string;
@@ -35,11 +37,13 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 				</span>
 			</summary>
 			<div class:list={['content-image', mode]}>
+				{mode === 'mcskin' && <SkinViewer src={imagePath} alt={alt} />}
 				<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
 			</div>
 		</details>
 	) : (
 		<div class:list={['content-image', mode]}>
+			{mode === 'mcskin' && <SkinViewer src={imagePath} alt={alt} />}
 			<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
 		</div>
 	)
@@ -71,6 +75,11 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 		image-rendering: pixelated;
 		border-radius: 0;
 		margin: 0;
+	}
+	.content-image.mcskin {
+		flex-direction: column;
+		align-items: center;
+		gap: 1em;
 	}
 	.content-image.mcskin img {
 		width: 100%;
