@@ -1,14 +1,21 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
-import JsonLd from '../components/JsonLd.astro';
+import EntryCard from '../components/EntryCard.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import JsonLd from '../components/JsonLd.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { websiteLd } from '../lib/structuredData';
+import { getTaggedEntries } from '../lib/tags';
+
+const RECENT_COUNT = 10;
+
+// Newest entries of every category (blog, illustrations, pixel art, skins, apps).
+const recent = (await getTaggedEntries()).slice(0, RECENT_COUNT);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<JsonLd data={websiteLd(Astro.site!)} />
@@ -21,7 +28,42 @@ import { websiteLd } from '../lib/structuredData';
 				qwaxgo.comにようこそ！
 				本サイトは現在準備中です。
 			</p>
+
+			<section class="recent">
+				<h2>最近の投稿</h2>
+				<ul>
+					{
+						recent.map(entry => (
+							<li>
+								<EntryCard entry={entry} headingLevel={3} />
+							</li>
+						))
+					}
+				</ul>
+				<p class="more"><a href="/tags/">すべての投稿を見る →</a></p>
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.recent {
+		margin-top: 2.5em;
+	}
+	.recent h2 {
+		margin: 0 0 0.75em 0;
+		font-size: 1.4rem;
+	}
+	.recent ul {
+		display: grid;
+		gap: 1em;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.more {
+		margin: 1em 0 0 0;
+		text-align: right;
+	}
+</style>

@@ -1,8 +1,7 @@
 ---
-import { Image } from 'astro:assets';
 import BaseHead from '../../components/BaseHead.astro';
+import EntryCard from '../../components/EntryCard.astro';
 import Footer from '../../components/Footer.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { COLLECTION_LABELS, getTaggedEntries, TAGGED_COLLECTIONS } from '../../lib/tags';
 
@@ -16,10 +15,6 @@ for (const tag of entries.flatMap(entry => entry.tags)) {
 const tags = [...tagCounts.keys()].sort(
 	(a, b) => tagCounts.get(b)! - tagCounts.get(a)! || a.localeCompare(b, 'ja'),
 );
-
-// images.qwaxgo.com rejects foreign Referers (hotlink protection), so localhost
-// must send none during dev. Production keeps the default qwaxgo.com Referer.
-const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 ---
 
 <!doctype html>
@@ -80,32 +75,7 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 				{
 					entries.map(entry => (
 						<li data-collection={entry.collection} data-tags={JSON.stringify(entry.tags)}>
-							<a href={entry.href}>
-								<div class:list={['thumb', entry.collection]}>
-									{typeof entry.thumbnail === 'string' ? (
-										<img
-											class:list={{ pixelated: entry.collection !== 'pictures' }}
-											src={entry.thumbnail}
-											alt=""
-											loading="lazy"
-											referrerpolicy={referrerPolicy}
-										/>
-									) : entry.thumbnail ? (
-										<Image src={entry.thumbnail} alt="" width={160} />
-									) : (
-										<span class="placeholder">{COLLECTION_LABELS[entry.collection]}</span>
-									)}
-								</div>
-								<div class="body">
-									<p class="meta">
-										<span class="type">{COLLECTION_LABELS[entry.collection]}</span>
-										<FormattedDate date={entry.pubDate} />
-									</p>
-									<h2 class="title">{entry.title}</h2>
-									<p class="description">{entry.description}</p>
-									<p class="entry-tags">{entry.tags.map(tag => `#${tag}`).join(' ')}</p>
-								</div>
-							</a>
+							<EntryCard entry={entry} />
 						</li>
 					))
 				}
@@ -312,86 +282,6 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 	.results li[hidden],
 	.tag-chips li[hidden] {
 		display: none;
-	}
-	.results a {
-		display: flex;
-		gap: 1em;
-		padding: 0.75em;
-		border-radius: 12px;
-		background: var(--surface);
-		box-shadow: var(--box-shadow);
-		text-decoration: none;
-		transition: box-shadow 0.15s ease;
-	}
-	.results a:hover,
-	.results a:focus-visible {
-		box-shadow: 0 0 0 3px var(--accent);
-		outline: none;
-	}
-	.thumb {
-		display: flex;
-		flex: none;
-		align-items: center;
-		justify-content: center;
-		width: 96px;
-		height: 96px;
-		border-radius: 8px;
-		overflow: hidden;
-		background: var(--surface-muted);
-	}
-	.thumb img {
-		width: 100%;
-		height: 100%;
-		margin: 0;
-		border-radius: 0;
-		object-fit: cover;
-	}
-	.thumb img.pixelated {
-		image-rendering: pixelated;
-	}
-	.thumb.mcskins img {
-		object-fit: contain;
-	}
-	.thumb.apps img {
-		object-position: top left;
-	}
-	.placeholder {
-		color: var(--muted-text-color);
-		font-size: 0.8em;
-	}
-	.body {
-		min-width: 0;
-	}
-	.meta {
-		display: flex;
-		gap: 0.75em;
-		margin: 0;
-		color: var(--muted-text-color);
-		font-size: 0.85em;
-	}
-	.type {
-		color: var(--accent);
-		font-weight: 700;
-	}
-	.title {
-		margin: 0.15em 0 0.25em 0;
-		color: var(--heading-color);
-		font-size: 1.1rem;
-		line-height: 1.35;
-	}
-	.description {
-		display: -webkit-box;
-		margin: 0;
-		overflow: hidden;
-		color: var(--text-color);
-		font-size: 0.9em;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-	}
-	.entry-tags {
-		margin: 0.3em 0 0 0;
-		color: var(--muted-text-color);
-		font-size: 0.8em;
 	}
 	.empty {
 		color: var(--muted-text-color);
