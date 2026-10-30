@@ -8,6 +8,11 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	site: 'https://qwaxgo.com',
 	integrations: [mdx(), sitemap()],
+	// /posts/ is an alias of /blog/
+	redirects: {
+		'/posts': '/blog',
+		'/posts/[...slug]': '/blog/[...slug]',
+	},
 	server: {
 		host: true,
 	},
