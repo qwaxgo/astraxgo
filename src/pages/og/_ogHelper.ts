@@ -8,7 +8,7 @@ export const NOTO_SANS_JP_FONTS = [
 	'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-jp@5/files/noto-sans-jp-latin-700-normal.woff',
 ];
 
-export type BlogPageEntry = CollectionEntry<'blog'>;
+export type GalleryPageEntry = CollectionEntry<'blog' | 'pictures' | 'mcskins'>;
 
 type Theme = 'light' | 'dark';
 type RGB = [number, number, number];
@@ -31,7 +31,7 @@ export function buildStaticImageOptions(
 			pubDate: new Date(),
 			ogStyle: meta.ogStyle ?? 'simple',
 		},
-	} as BlogPageEntry;
+	} as GalleryPageEntry;
 	const opts = buildImageOptions('', syntheticEntry, theme);
 	return { ...opts, description: meta.description };
 }
@@ -39,7 +39,7 @@ export function buildStaticImageOptions(
 /** Build OGImageOptions per entry and theme */
 export function buildImageOptions(
 	_path: string,
-	entry: BlogPageEntry,
+	entry: GalleryPageEntry,
 	theme: Theme,
 ): OGImageOptions {
 	const { title, pubDate, ogStyle = 'simple' } = entry.data;
