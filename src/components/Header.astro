@@ -5,10 +5,19 @@ import SocialLinks from './SocialLinks.astro';
 import ThemeToggle from './ThemeToggle.astro';
 ---
 
-<header>
-	<nav>
+<header class="site-header">
+	<nav aria-label="サイト">
 		<h2><a href="/">{SITE_TITLE}</a></h2>
-		<div class="nav-right">
+		<button
+			type="button"
+			class="menu-toggle"
+			aria-expanded="false"
+			aria-controls="site-menu"
+			aria-label="メニューを開く"
+		>
+			<span class="bars" aria-hidden="true"></span>
+		</button>
+		<div class="nav-right" id="site-menu">
 			<div class="internal-links">
 				<HeaderLink href="/">Home</HeaderLink>
 				<HeaderLink href="/blog">Blog</HeaderLink>
@@ -28,8 +37,39 @@ import ThemeToggle from './ThemeToggle.astro';
 		</div>
 	</nav>
 </header>
+
+<script>
+	// Hamburger menu below the breakpoint: the button opens the links as a panel
+	// under the header. Esc, a click outside, or widening the window closes it.
+	const header = document.querySelector<HTMLElement>('.site-header')!;
+	const toggle = header.querySelector<HTMLButtonElement>('.menu-toggle')!;
+
+	const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+	function setOpen(open: boolean) {
+		header.toggleAttribute('data-open', open);
+		toggle.setAttribute('aria-expanded', String(open));
+		toggle.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+	}
+
+	toggle.addEventListener('click', () => setOpen(!isOpen()));
+	document.addEventListener('keydown', event => {
+		if (event.key === 'Escape' && isOpen()) {
+			setOpen(false);
+			toggle.focus();
+		}
+	});
+	document.addEventListener('click', event => {
+		if (isOpen() && !header.contains(event.target as Node)) setOpen(false);
+	});
+	matchMedia('(min-width: 1024px)').addEventListener('change', event => {
+		if (event.matches) setOpen(false);
+	});
+</script>
+
 <style>
 	header {
+		position: relative;
+		z-index: 10;
 		margin: 0;
 		padding: 0 1em;
 		background: var(--surface);
@@ -75,19 +115,102 @@ import ThemeToggle from './ThemeToggle.astro';
 		align-items: center;
 		gap: 0.75rem;
 	}
-	@media (max-width: 720px) {
+
+	.menu-toggle {
+		display: none;
+		align-items: center;
+		justify-content: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		margin: 0.5rem 0;
+		padding: 0;
+		border: 1px solid var(--border-color);
+		border-radius: 10px;
+		background: var(--surface);
+		color: var(--heading-color);
+		cursor: pointer;
+	}
+	.menu-toggle:hover,
+	.menu-toggle:focus-visible {
+		border-color: var(--accent);
+		color: var(--accent);
+		outline: none;
+	}
+	/* Three bars that turn into a cross while the menu is open. */
+	.bars,
+	.bars::before,
+	.bars::after {
+		display: block;
+		position: relative;
+		width: 1.25rem;
+		height: 2px;
+		border-radius: 1px;
+		background: currentColor;
+		transition:
+			transform 0.2s ease,
+			background-color 0.2s ease;
+	}
+	.bars::before,
+	.bars::after {
+		content: '';
+		position: absolute;
+		left: 0;
+	}
+	.bars::before {
+		top: -6px;
+	}
+	.bars::after {
+		top: 6px;
+	}
+	header[data-open] .bars {
+		background: transparent;
+	}
+	header[data-open] .bars::before {
+		transform: translateY(6px) rotate(45deg);
+	}
+	header[data-open] .bars::after {
+		transform: translateY(-6px) rotate(-45deg);
+	}
+
+	@media (max-width: 1023px) {
+		.menu-toggle {
+			display: inline-flex;
+		}
 		.nav-right {
+			display: none;
+			position: absolute;
+			top: 100%;
+			right: 0;
+			left: 0;
 			flex-direction: column;
-			align-items: flex-end;
-			gap: 0.75rem;
+			align-items: stretch;
+			gap: 0;
+			padding: 0.5em 1em 1em;
+			background: var(--surface);
+			box-shadow: var(--elevated-shadow);
+		}
+		header[data-open] .nav-right {
+			display: flex;
 		}
 		.nav-right .internal-links {
-			width: 100%;
-			justify-content: flex-end;
-			flex-wrap: wrap;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0;
 		}
-		.social {
-			display: none;
+		nav .internal-links a {
+			padding: 0.75em 0.75em;
+			border-bottom: none;
+			border-left: 4px solid transparent;
+		}
+		nav .internal-links a.active {
+			border-left-color: var(--accent);
+		}
+		.nav-actions {
+			flex-wrap: wrap;
+			justify-content: space-between;
+			margin-top: 0.75em;
+			padding-top: 0.75em;
+			border-top: 1px solid var(--border-color);
 		}
 	}
 </style>
