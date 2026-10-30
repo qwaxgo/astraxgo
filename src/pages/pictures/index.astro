@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import ContentGrid from '../../components/ContentGrid.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+
+const entries = (await getCollection('pictures', ({ data }) => !data.draft)).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<!doctype html>
+<html lang="ja">
+	<head>
+		<BaseHead title="イラスト" description="オリジナルイラスト・ドット絵などの一覧です" />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>イラスト</h1>
+			<ContentGrid entries={entries} basePath="pictures" thumbnailMode="pixelart" />
+		</main>
+		<Footer />
+	</body>
+</html>

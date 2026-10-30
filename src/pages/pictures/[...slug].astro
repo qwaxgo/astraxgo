@@ -1,0 +1,21 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import ContentImage from '../../components/ContentImage.astro';
+import GalleryPost from '../../layouts/GalleryPost.astro';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('pictures');
+	return entries.map(entry => ({
+		params: { slug: entry.id },
+		props: entry,
+	}));
+}
+type Props = CollectionEntry<'pictures'>;
+
+const entry = Astro.props;
+const { Content } = await render(entry);
+---
+
+<GalleryPost {...entry.data} id={entry.id} collection="pictures">
+	<Content components={{ ContentImage }} />
+</GalleryPost>
