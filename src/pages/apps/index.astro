@@ -7,6 +7,7 @@ import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { getAppScreenshot } from '../../lib/appScreenshots';
+import { tagSearchUrl } from '../../lib/tags';
 
 const entries = (await getCollection('apps', ({ data }) => !data.draft))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
@@ -58,7 +59,9 @@ const entries = (await getCollection('apps', ({ data }) => !data.draft))
 							<p class="dialog-meta">
 								<FormattedDate date={entry.data.pubDate} />
 								{entry.data.tags.map(tag => (
-									<span class="tag">#{tag}</span>
+									<a class="tag" href={tagSearchUrl(tag)}>
+										#{tag}
+									</a>
 								))}
 							</p>
 							<AppDetail entry={entry} />
@@ -219,6 +222,10 @@ const entries = (await getCollection('apps', ({ data }) => !data.draft))
 	}
 	.dialog-meta .tag {
 		color: var(--accent);
+		text-decoration: none;
+	}
+	.dialog-meta .tag:hover {
+		text-decoration: underline;
 	}
 	.close {
 		position: absolute;

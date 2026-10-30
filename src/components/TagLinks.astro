@@ -1,0 +1,43 @@
+---
+import { tagSearchUrl } from '../lib/tags';
+
+interface Props {
+	tags: string[];
+}
+
+// A post's tags, each linking to the tag search across every collection.
+const { tags } = Astro.props;
+---
+
+{
+	tags.length > 0 && (
+		<ul class="tags">
+			{tags.map(tag => (
+				<li>
+					<a href={tagSearchUrl(tag)}>#{tag}</a>
+				</li>
+			))}
+		</ul>
+	)
+}
+
+<style>
+	.tags {
+		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		margin: 0.75em 0 0 0;
+		padding: 0;
+		list-style: none;
+		font-size: 0.9em;
+	}
+	.tags a {
+		color: var(--accent);
+		text-decoration: none;
+	}
+	.tags a:hover,
+	.tags a:focus-visible {
+		text-decoration: underline;
+	}
+</style>

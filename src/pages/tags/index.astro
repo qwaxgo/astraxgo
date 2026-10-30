@@ -1,0 +1,399 @@
+---
+import { Image } from 'astro:assets';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Header from '../../components/Header.astro';
+import { COLLECTION_LABELS, getTaggedEntries, TAGGED_COLLECTIONS } from '../../lib/tags';
+
+const entries = await getTaggedEntries();
+
+// Most used tags first, then by name.
+const tagCounts = new Map<string, number>();
+for (const tag of entries.flatMap(entry => entry.tags)) {
+	tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+}
+const tags = [...tagCounts.keys()].sort(
+	(a, b) => tagCounts.get(b)! - tagCounts.get(a)! || a.localeCompare(b, 'ja'),
+);
+
+// images.qwaxgo.com rejects foreign Referers (hotlink protection), so localhost
+// must send none during dev. Production keeps the default qwaxgo.com Referer.
+const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
+---
+
+<!doctype html>
+<html lang="ja">
+	<head>
+		<BaseHead
+			title="タグ検索"
+			description="ブログ・イラスト・マイクラスキン・アプリをタグで検索できます"
+		/>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>タグ検索</h1>
+
+			<fieldset class="types">
+				<legend class="sr-only">種類</legend>
+				<label>
+					<input type="radio" name="type" value="" checked />
+					<span>すべて</span>
+				</label>
+				{
+					TAGGED_COLLECTIONS.map(collection => (
+						<label>
+							<input type="radio" name="type" value={collection} />
+							<span>{COLLECTION_LABELS[collection]}</span>
+						</label>
+					))
+				}
+			</fieldset>
+
+			<div class="tag-picker">
+				<input
+					type="search"
+					class="tag-filter"
+					placeholder="タグを絞り込む…"
+					aria-label="タグ名で絞り込む"
+				/>
+				<ul class="tag-chips" aria-label="タグ">
+					{
+						tags.map(tag => (
+							<li>
+								<button type="button" data-tag={tag} aria-pressed="false">
+									#{tag} <span class="count">{tagCounts.get(tag)}</span>
+								</button>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+
+			<p class="summary" aria-live="polite">
+				<span><span class="result-count">{entries.length}</span>件</span>
+				<button type="button" class="clear" hidden>条件をクリア</button>
+			</p>
+
+			<ul class="results">
+				{
+					entries.map(entry => (
+						<li data-collection={entry.collection} data-tags={JSON.stringify(entry.tags)}>
+							<a href={entry.href}>
+								<div class:list={['thumb', entry.collection]}>
+									{typeof entry.thumbnail === 'string' ? (
+										<img
+											src={entry.thumbnail}
+											alt=""
+											loading="lazy"
+											referrerpolicy={referrerPolicy}
+										/>
+									) : entry.thumbnail ? (
+										<Image src={entry.thumbnail} alt="" width={160} />
+									) : (
+										<span class="placeholder">{COLLECTION_LABELS[entry.collection]}</span>
+									)}
+								</div>
+								<div class="body">
+									<p class="meta">
+										<span class="type">{COLLECTION_LABELS[entry.collection]}</span>
+										<FormattedDate date={entry.pubDate} />
+									</p>
+									<h2 class="title">{entry.title}</h2>
+									<p class="description">{entry.description}</p>
+									<p class="entry-tags">{entry.tags.map(tag => `#${tag}`).join(' ')}</p>
+								</div>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+			<p class="empty" hidden>条件に合うものはありません。</p>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<script>
+	// State lives in the URL (?type=<collection>&tag=<a>&tag=<b>) so searches can be
+	// shared and the tag links on each post land on a pre-filtered page.
+	// Selected tags narrow the results together (AND).
+	const typeInputs = [...document.querySelectorAll<HTMLInputElement>('input[name="type"]')];
+	const chips = [...document.querySelectorAll<HTMLButtonElement>('.tag-chips button')];
+	const results = [...document.querySelectorAll<HTMLLIElement>('.results > li')].map(el => ({
+		el,
+		collection: el.dataset.collection!,
+		tags: JSON.parse(el.dataset.tags!) as string[],
+	}));
+	const tagFilter = document.querySelector<HTMLInputElement>('.tag-filter')!;
+	const resultCount = document.querySelector('.result-count')!;
+	const clearButton = document.querySelector<HTMLButtonElement>('.clear')!;
+	const empty = document.querySelector<HTMLElement>('.empty')!;
+
+	const params = new URLSearchParams(location.search);
+	let type = params.get('type') ?? '';
+	const selected = new Set(params.getAll('tag'));
+	if (!typeInputs.some(input => input.value === type)) type = '';
+
+	function render() {
+		const inType = results.filter(r => !type || r.collection === type);
+		const matches = inType.filter(r => [...selected].every(tag => r.tags.includes(tag)));
+		const shown = new Set(matches);
+		for (const r of results) r.el.hidden = !shown.has(r);
+
+		// Chip counts follow the chosen type; tags absent from it are hidden
+		// unless selected, so a selection can always be undone.
+		const query = tagFilter.value.trim().toLowerCase();
+		for (const chip of chips) {
+			const tag = chip.dataset.tag!;
+			const count = inType.filter(r => r.tags.includes(tag)).length;
+			const isSelected = selected.has(tag);
+			chip.setAttribute('aria-pressed', String(isSelected));
+			chip.querySelector('.count')!.textContent = String(count);
+			chip.parentElement!.hidden =
+				!isSelected && (count === 0 || (query !== '' && !tag.toLowerCase().includes(query)));
+		}
+
+		for (const input of typeInputs) input.checked = input.value === type;
+		resultCount.textContent = String(matches.length);
+		empty.hidden = matches.length > 0;
+		clearButton.hidden = !type && selected.size === 0;
+
+		const next = new URLSearchParams();
+		if (type) next.set('type', type);
+		for (const tag of selected) next.append('tag', tag);
+		const search = next.toString();
+		history.replaceState(null, '', search ? `?${search}` : location.pathname);
+	}
+
+	for (const input of typeInputs) {
+		input.addEventListener('change', () => {
+			type = input.value;
+			render();
+		});
+	}
+	for (const chip of chips) {
+		chip.addEventListener('click', () => {
+			const tag = chip.dataset.tag!;
+			if (!selected.delete(tag)) selected.add(tag);
+			render();
+		});
+	}
+	tagFilter.addEventListener('input', render);
+	clearButton.addEventListener('click', () => {
+		type = '';
+		selected.clear();
+		tagFilter.value = '';
+		render();
+	});
+
+	render();
+</script>
+
+<style>
+	.types {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		margin: 0 0 1em 0;
+		padding: 0;
+		border: none;
+	}
+	.types label {
+		cursor: pointer;
+	}
+	.types input {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+	.types span {
+		display: inline-block;
+		padding: 0.4em 1.1em;
+		border: 1px solid var(--border-color);
+		border-radius: 999px;
+		background: var(--surface);
+		color: var(--heading-color);
+	}
+	.types input:checked + span {
+		border-color: var(--accent);
+		background: var(--accent);
+		color: #fff;
+	}
+	.types input:focus-visible + span {
+		box-shadow: 0 0 0 3px var(--accent);
+	}
+
+	.tag-picker {
+		margin-bottom: 1em;
+		padding: 1em;
+		border-radius: 12px;
+		background: var(--surface);
+		box-shadow: var(--box-shadow);
+	}
+	.tag-filter {
+		box-sizing: border-box;
+		width: 100%;
+		margin-bottom: 0.75em;
+		padding: 0.5em 0.8em;
+		border: 1px solid var(--border-color);
+		border-radius: 8px;
+		background: var(--surface-muted);
+		color: var(--text-color);
+		font: inherit;
+	}
+	.tag-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4em;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.tag-chips button {
+		padding: 0.3em 0.8em;
+		border: 1px solid var(--border-color);
+		border-radius: 999px;
+		background: var(--surface);
+		color: var(--accent);
+		font: inherit;
+		font-size: 0.9em;
+		cursor: pointer;
+	}
+	.tag-chips button:hover,
+	.tag-chips button:focus-visible {
+		border-color: var(--accent);
+		outline: none;
+	}
+	.tag-chips button[aria-pressed='true'] {
+		border-color: var(--accent);
+		background: var(--accent);
+		color: #fff;
+	}
+	.tag-chips .count {
+		margin-left: 0.2em;
+		opacity: 0.7;
+		font-size: 0.85em;
+	}
+
+	.summary {
+		display: flex;
+		align-items: center;
+		gap: 1em;
+		margin: 0 0 1em 0;
+		color: var(--muted-text-color);
+	}
+	.clear {
+		padding: 0.2em 0.8em;
+		border: 1px solid var(--border-color);
+		border-radius: 999px;
+		background: none;
+		color: var(--heading-color);
+		font: inherit;
+		font-size: 0.9em;
+		cursor: pointer;
+	}
+	.clear:hover,
+	.clear:focus-visible {
+		border-color: var(--accent);
+		color: var(--accent);
+		outline: none;
+	}
+
+	.results {
+		display: grid;
+		gap: 1em;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.results li[hidden],
+	.tag-chips li[hidden] {
+		display: none;
+	}
+	.results a {
+		display: flex;
+		gap: 1em;
+		padding: 0.75em;
+		border-radius: 12px;
+		background: var(--surface);
+		box-shadow: var(--box-shadow);
+		text-decoration: none;
+		transition: box-shadow 0.15s ease;
+	}
+	.results a:hover,
+	.results a:focus-visible {
+		box-shadow: 0 0 0 3px var(--accent);
+		outline: none;
+	}
+	.thumb {
+		display: flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 96px;
+		height: 96px;
+		border-radius: 8px;
+		overflow: hidden;
+		background: var(--surface-muted);
+	}
+	.thumb img {
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		border-radius: 0;
+		object-fit: cover;
+	}
+	.thumb.mcskins img,
+	.thumb.pictures img {
+		image-rendering: pixelated;
+	}
+	.thumb.mcskins img {
+		object-fit: contain;
+	}
+	.thumb.apps img {
+		object-position: top left;
+	}
+	.placeholder {
+		color: var(--muted-text-color);
+		font-size: 0.8em;
+	}
+	.body {
+		min-width: 0;
+	}
+	.meta {
+		display: flex;
+		gap: 0.75em;
+		margin: 0;
+		color: var(--muted-text-color);
+		font-size: 0.85em;
+	}
+	.type {
+		color: var(--accent);
+		font-weight: 700;
+	}
+	.title {
+		margin: 0.15em 0 0.25em 0;
+		color: var(--heading-color);
+		font-size: 1.1rem;
+		line-height: 1.35;
+	}
+	.description {
+		display: -webkit-box;
+		margin: 0;
+		overflow: hidden;
+		color: var(--text-color);
+		font-size: 0.9em;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+	}
+	.entry-tags {
+		margin: 0.3em 0 0 0;
+		color: var(--muted-text-color);
+		font-size: 0.8em;
+	}
+	.empty {
+		color: var(--muted-text-color);
+	}
+</style>
