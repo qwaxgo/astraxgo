@@ -8,7 +8,7 @@ export const NOTO_SANS_JP_FONTS = [
 	'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-jp@5/files/noto-sans-jp-latin-700-normal.woff',
 ];
 
-export type GalleryPageEntry = CollectionEntry<'blog' | 'pictures' | 'mcskins' | 'apps'>;
+export type GalleryPageEntry = CollectionEntry<'blog' | 'pictures' | 'pixelarts' | 'mcskins' | 'apps'>;
 
 type Theme = 'light' | 'dark';
 type RGB = [number, number, number];

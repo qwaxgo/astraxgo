@@ -16,7 +16,7 @@ const baseSchema = z.object({
 	ogStyle: z.enum(['simple', 'gradient', 'hero']).optional().default('simple'),
 });
 
-// Gallery collections (pictures/mcskins) reference remote image URLs rendered
+// Gallery collections (pictures/pixelarts/mcskins) reference remote image URLs rendered
 // via <ContentImage> inside the MDX body, so they're plain strings rather than
 // local assets validated through Astro's `image()` helper.
 const galleryContentSchema = z.array(z.string());
@@ -30,6 +30,12 @@ const blog = defineCollection({
 
 const pictures = defineCollection({
 	loader: glob({ base: './src/content/pictures', pattern: '**/*.{md,mdx}' }),
+	schema: baseSchema.extend({ contentImages: galleryContentSchema }),
+});
+
+// Pixel art; shown with nearest-neighbour scaling, unlike `pictures`.
+const pixelarts = defineCollection({
+	loader: glob({ base: './src/content/pixelarts', pattern: '**/*.{md,mdx}' }),
 	schema: baseSchema.extend({ contentImages: galleryContentSchema }),
 });
 
@@ -55,4 +61,4 @@ const apps = defineCollection({
 		.transform(data => ({ ...data, ...appUrls(data.repo, data.path) })),
 });
 
-export const collections = { blog, pictures, mcskins, apps };
+export const collections = { blog, pictures, pixelarts, mcskins, apps };

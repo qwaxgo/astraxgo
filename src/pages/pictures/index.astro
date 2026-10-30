@@ -13,13 +13,13 @@ const entries = (await getCollection('pictures', ({ data }) => !data.draft)).sor
 <!doctype html>
 <html lang="ja">
 	<head>
-		<BaseHead title="イラスト" description="オリジナルイラスト・ドット絵などの一覧です" />
+		<BaseHead title="イラスト" description="オリジナルイラストの一覧です" />
 	</head>
 	<body>
 		<Header />
 		<main>
 			<h1>イラスト</h1>
-			<ContentGrid entries={entries} basePath="pictures" thumbnailMode="pixelart" />
+			<ContentGrid entries={entries} basePath="pictures" thumbnailMode="picture" />
 		</main>
 		<Footer />
 	</body>

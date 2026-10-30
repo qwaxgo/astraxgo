@@ -8,13 +8,10 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	site: 'https://qwaxgo.com',
 	integrations: [mdx(), sitemap()],
-	// Category aliases: /posts/ → /blog/, and /pixelarts/ (the illustration
-	// category on the old lordlution.net) → /pictures/.
+	// /posts/ is an alias of /blog/
 	redirects: {
 		'/posts': '/blog',
 		'/posts/[...slug]': '/blog/[...slug]',
-		'/pixelarts': '/pictures',
-		'/pixelarts/[...slug]': '/pictures/[...slug]',
 	},
 	server: {
 		host: true,

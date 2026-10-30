@@ -3,12 +3,13 @@ import { getCollection } from 'astro:content';
 import { getAppScreenshot } from './appScreenshots';
 import { getSkinThumbnail } from './skinThumbnails';
 
-export const TAGGED_COLLECTIONS = ['blog', 'pictures', 'mcskins', 'apps'] as const;
+export const TAGGED_COLLECTIONS = ['blog', 'pictures', 'pixelarts', 'mcskins', 'apps'] as const;
 export type TaggedCollection = (typeof TAGGED_COLLECTIONS)[number];
 
 export const COLLECTION_LABELS: Record<TaggedCollection, string> = {
 	blog: 'ブログ',
 	pictures: 'イラスト',
+	pixelarts: 'ドット絵',
 	mcskins: 'マイクラスキン',
 	apps: 'アプリ',
 };
@@ -34,18 +35,19 @@ export interface TaggedEntry {
 	page: string;
 	/** Raw Markdown/MDX source. */
 	body: string;
-	/** Images shown on the page (pictures/mcskins). */
+	/** Images shown on the page (pictures/pixelarts/mcskins). */
 	images: string[];
-	/** Remote URL (pictures/mcskins) or a local asset (blog hero, app screenshot). */
+	/** Remote URL (pictures/pixelarts/mcskins) or a local asset (blog hero, app screenshot). */
 	thumbnail?: string | ImageMetadata;
 }
 
 /** Every published entry of every tagged collection, newest first. */
 export async function getTaggedEntries(): Promise<TaggedEntry[]> {
 	const published = ({ data }: { data: { draft: boolean } }) => !data.draft;
-	const [blog, pictures, mcskins, apps] = await Promise.all([
+	const [blog, pictures, pixelarts, mcskins, apps] = await Promise.all([
 		getCollection('blog', published),
 		getCollection('pictures', published),
+		getCollection('pixelarts', published),
 		getCollection('mcskins', published),
 		getCollection('apps', published),
 	]);
@@ -67,6 +69,12 @@ export async function getTaggedEntries(): Promise<TaggedEntry[]> {
 		...pictures.map(e => ({
 			...common('pictures', e),
 			href: `/pictures/${e.id}/`,
+			thumbnail: e.data.contentImages[0],
+			images: e.data.contentImages,
+		})),
+		...pixelarts.map(e => ({
+			...common('pixelarts', e),
+			href: `/pixelarts/${e.id}/`,
 			thumbnail: e.data.contentImages[0],
 			images: e.data.contentImages,
 		})),

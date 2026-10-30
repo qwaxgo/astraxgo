@@ -5,9 +5,10 @@ import { getSkinThumbnail } from '../lib/skinThumbnails';
 import FormattedDate from './FormattedDate.astro';
 
 interface Props {
-	entries: (CollectionEntry<'pictures'> | CollectionEntry<'mcskins'>)[];
-	basePath: 'pictures' | 'mcskins';
-	thumbnailMode: 'mcskin' | 'pixelart';
+	entries: CollectionEntry<'pictures' | 'pixelarts' | 'mcskins'>[];
+	basePath: 'pictures' | 'pixelarts' | 'mcskins';
+	/** `picture` scales smoothly; `pixelart` and `mcskin` use nearest-neighbour. */
+	thumbnailMode: 'picture' | 'pixelart' | 'mcskin';
 }
 
 const { entries, basePath, thumbnailMode } = Astro.props;
@@ -99,6 +100,9 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 		max-height: 100%;
 		margin: 0;
 		border-radius: 0;
+	}
+	.thumb.pixelart img,
+	.thumb.mcskin img {
 		image-rendering: pixelated;
 	}
 	.thumb.mcskin img {
@@ -110,7 +114,8 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 		object-fit: contain;
 		image-rendering: auto;
 	}
-	.thumb.pixelart img {
+	.thumb.pixelart img,
+	.thumb.picture img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;

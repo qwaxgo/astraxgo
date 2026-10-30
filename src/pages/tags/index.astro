@@ -84,7 +84,7 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 								<div class:list={['thumb', entry.collection]}>
 									{typeof entry.thumbnail === 'string' ? (
 										<img
-											class="texture"
+											class:list={{ pixelated: entry.collection !== 'pictures' }}
 											src={entry.thumbnail}
 											alt=""
 											loading="lazy"
@@ -346,7 +346,7 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 		border-radius: 0;
 		object-fit: cover;
 	}
-	.thumb img.texture {
+	.thumb img.pixelated {
 		image-rendering: pixelated;
 	}
 	.thumb.mcskins img {

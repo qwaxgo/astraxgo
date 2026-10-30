@@ -35,6 +35,7 @@ interface EntryLdInput {
 const TYPES: Record<TaggedCollection, string> = {
 	blog: 'BlogPosting',
 	pictures: 'VisualArtwork',
+	pixelarts: 'VisualArtwork',
 	mcskins: 'CreativeWork',
 	apps: 'WebApplication',
 };

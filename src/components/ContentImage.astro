@@ -4,7 +4,8 @@ import SkinViewer from './SkinViewer.astro';
 interface Props {
 	imagePath: string;
 	alt: string;
-	mode: 'mcskin' | 'pixelart';
+	/** `picture` scales smoothly; `pixelart` and `mcskin` use nearest-neighbour. */
+	mode: 'picture' | 'pixelart' | 'mcskin';
 	mask?: boolean;
 	maskAlertTitle?: string;
 	maskAlertDesc?: string;
@@ -78,9 +79,12 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 		box-shadow: var(--box-shadow);
 	}
 	.content-image img {
-		image-rendering: pixelated;
 		border-radius: 0;
 		margin: 0;
+	}
+	.content-image.pixelart img,
+	.content-image.mcskin img {
+		image-rendering: pixelated;
 	}
 	.content-image.mcskin {
 		flex-direction: column;
@@ -91,7 +95,8 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 		width: 100%;
 		max-width: 320px;
 	}
-	.content-image.pixelart img {
+	.content-image.pixelart img,
+	.content-image.picture img {
 		width: 100%;
 		max-width: 640px;
 	}
