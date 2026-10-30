@@ -16,6 +16,10 @@ const {
 	maskAlertTitle = 'ネタバレ注意',
 	maskAlertDesc,
 } = Astro.props;
+
+// images.qwaxgo.com rejects foreign Referers (hotlink protection), so localhost
+// must send none during dev. Production keeps the default qwaxgo.com Referer.
+const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 ---
 
 {
@@ -31,12 +35,12 @@ const {
 				</span>
 			</summary>
 			<div class:list={['content-image', mode]}>
-				<img src={imagePath} alt={alt} loading="lazy" />
+				<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
 			</div>
 		</details>
 	) : (
 		<div class:list={['content-image', mode]}>
-			<img src={imagePath} alt={alt} loading="lazy" />
+			<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
 		</div>
 	)
 }

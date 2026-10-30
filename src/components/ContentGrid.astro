@@ -9,6 +9,10 @@ interface Props {
 }
 
 const { entries, basePath, thumbnailMode } = Astro.props;
+
+// images.qwaxgo.com rejects foreign Referers (hotlink protection), so localhost
+// must send none during dev. Production keeps the default qwaxgo.com Referer.
+const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 ---
 
 <ul class="content-grid">
@@ -17,7 +21,12 @@ const { entries, basePath, thumbnailMode } = Astro.props;
 			<li>
 				<a href={`/${basePath}/${entry.id}/`}>
 					<div class:list={['thumb', thumbnailMode]}>
-						<img src={entry.data.contentImages[0]} alt="" loading="lazy" />
+						<img
+							src={entry.data.contentImages[0]}
+							alt=""
+							loading="lazy"
+							referrerpolicy={referrerPolicy}
+						/>
 					</div>
 					<h3 class="title">{entry.data.title}</h3>
 					<p class="date">
