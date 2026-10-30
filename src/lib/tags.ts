@@ -27,7 +27,14 @@ export interface TaggedEntry {
 	description: string;
 	pubDate: Date;
 	tags: string[];
+	/** Where on-site links go (apps open in the popup on the list page). */
 	href: string;
+	/** The entry's own page, e.g. for crawlers and llms.txt. */
+	page: string;
+	/** Raw Markdown/MDX source. */
+	body: string;
+	/** Images shown on the page (pictures/mcskins). */
+	images: string[];
 	/** Remote URL (pictures/mcskins) or a local asset (blog hero, app screenshot). */
 	thumbnail?: string | ImageMetadata;
 }
@@ -49,6 +56,9 @@ export async function getTaggedEntries(): Promise<TaggedEntry[]> {
 		description: entry.data.description,
 		pubDate: entry.data.pubDate,
 		tags: entry.data.tags,
+		page: `/${collection}/${entry.id}/`,
+		body: entry.body ?? '',
+		images: [] as string[],
 	});
 
 	return [
@@ -57,11 +67,13 @@ export async function getTaggedEntries(): Promise<TaggedEntry[]> {
 			...common('pictures', e),
 			href: `/pictures/${e.id}/`,
 			thumbnail: e.data.contentImages[0],
+			images: e.data.contentImages,
 		})),
 		...mcskins.map(e => ({
 			...common('mcskins', e),
 			href: `/mcskins/${e.id}/`,
 			thumbnail: e.data.contentImages[0],
+			images: e.data.contentImages,
 		})),
 		// Apps open in the popup on the list page.
 		...apps.map(e => ({ ...common('apps', e), href: `/apps/#${e.id}`, thumbnail: getAppScreenshot(e.id) })),
