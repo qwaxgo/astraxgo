@@ -5,24 +5,11 @@ import SocialLinks from './SocialLinks.astro';
 const today = new Date();
 ---
 
-<footer>
-	&copy; {today.getFullYear()} {SITE_AUTHOR}. All rights reserved.
-	<div class="social">
-		<SocialLinks size={24} />
+<footer class="border-t border-border-default bg-bg-surface">
+	<div
+		class="mx-auto flex max-w-[1042px] flex-col-reverse items-center gap-4 px-4 py-8 sm:flex-row sm:justify-between"
+	>
+		<p class="text-sm text-text-muted">&copy; {today.getFullYear()} {SITE_AUTHOR}. All rights reserved.</p>
+		<SocialLinks />
 	</div>
 </footer>
-<style>
-	footer {
-		padding: 2em 1em 6em 1em;
-		background: linear-gradient(var(--gray-gradient)) no-repeat;
-		background-size: 100% 400px;
-		background-color: var(--surface-muted);
-		color: var(--muted-text-color);
-		text-align: center;
-	}
-	.social {
-		display: flex;
-		justify-content: center;
-		margin-top: 1em;
-	}
-</style>

@@ -1,0 +1,14 @@
+---
+interface Props {
+	title: string;
+	description?: string;
+}
+
+// Title block at the top of a listing page.
+const { title, description } = Astro.props;
+---
+
+<header class="mb-10">
+	<h1 class="text-3xl font-bold text-text-heading">{title}</h1>
+	{description && <p class="mt-2 text-base text-text-muted">{description}</p>}
+</header>

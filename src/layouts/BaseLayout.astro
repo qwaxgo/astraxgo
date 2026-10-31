@@ -1,0 +1,34 @@
+---
+import type { ImageMetadata } from 'astro';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import JsonLd from '../components/JsonLd.astro';
+
+interface Props {
+	title: string;
+	description: string;
+	image?: ImageMetadata;
+	ogImageUrl?: string;
+	/** JSON-LD for the page, if any. */
+	structuredData?: object;
+}
+
+// Page shell shared by every page: one content width across the site (melta UI layout).
+const { title, description, image, ogImageUrl, structuredData } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja">
+	<head>
+		<BaseHead title={title} description={description} image={image} ogImageUrl={ogImageUrl} />
+		{structuredData && <JsonLd data={structuredData} />}
+	</head>
+	<body class="flex min-h-screen flex-col bg-bg-page">
+		<Header />
+		<main class="mx-auto w-full max-w-[1042px] flex-1 px-4 py-10 md:py-14">
+			<slot />
+		</main>
+		<Footer />
+	</body>
+</html>

@@ -12,12 +12,13 @@ export type SocialIconName = keyof typeof PATHS;
 
 interface Props {
 	name: SocialIconName;
-	size?: number;
+	/** Size and colour, e.g. `w-5 h-5`. */
+	class?: string;
 }
 
-const { name, size = 24 } = Astro.props;
+const { name, class: className = 'w-5 h-5' } = Astro.props;
 ---
 
-<svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+<svg viewBox="0 0 24 24" class:list={['shrink-0', className]} aria-hidden="true" focusable="false">
 	<path fill="currentColor" d={PATHS[name]}></path>
 </svg>

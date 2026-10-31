@@ -11,33 +11,17 @@ const { tags } = Astro.props;
 
 {
 	tags.length > 0 && (
-		<ul class="tags">
+		<ul class="flex flex-wrap gap-2" aria-label="タグ">
 			{tags.map(tag => (
 				<li>
-					<a href={tagSearchUrl(tag)}>#{tag}</a>
+					<a
+						href={tagSearchUrl(tag)}
+						class="inline-flex items-center rounded-full bg-bg-page-alt px-3 py-1 text-xs font-medium text-body transition-colors hover:bg-bg-accent-subtle hover:text-text-accent focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none"
+					>
+						#{tag}
+					</a>
 				</li>
 			))}
 		</ul>
 	)
 }
-
-<style>
-	.tags {
-		display: flex;
-		justify-content: center;
-		flex-wrap: wrap;
-		gap: 0.5em;
-		margin: 0.75em 0 0 0;
-		padding: 0;
-		list-style: none;
-		font-size: 0.9em;
-	}
-	.tags a {
-		color: var(--accent);
-		text-decoration: none;
-	}
-	.tags a:hover,
-	.tags a:focus-visible {
-		text-decoration: underline;
-	}
-</style>
