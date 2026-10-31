@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro';
 import SkinViewer from './SkinViewer.astro';
 
 interface Props {
@@ -27,125 +28,48 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 
 {
 	mask ? (
-		<details class="content-image-spoiler">
-			<summary>
-				<span class="spoiler-icon" aria-hidden="true">
-					⚠
-				</span>
-				<span class="spoiler-text">
-					<strong>{maskAlertTitle}</strong>
-					{maskAlertDesc && <span class="spoiler-desc">{maskAlertDesc}</span>}
+		<details class="group my-8 overflow-hidden rounded-xl border border-border-default bg-bg-surface shadow-sm">
+			<summary class="flex cursor-pointer list-none items-center gap-3 px-5 py-4 leading-normal focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+				<Icon name="Next" class="h-4 w-4 text-text-muted transition-transform group-open:rotate-90" />
+				<Icon name="Warning" class="h-5 w-5 text-amber-600 dark:text-amber-300" />
+				<span class="flex flex-col gap-0.5">
+					<strong class="text-sm font-semibold text-text-heading">{maskAlertTitle}</strong>
+					{maskAlertDesc && <span class="text-xs text-text-muted">{maskAlertDesc}</span>}
 				</span>
 			</summary>
-			<div class:list={['content-image', mode]}>
+			<div class="checkerboard flex flex-col items-center gap-4 border-t border-border-default p-6">
 				{mode === 'mcskin' ? (
 					<SkinViewer src={imagePath} alt={alt} />
 				) : (
-					<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
+					<img
+						src={imagePath}
+						alt={alt}
+						loading="lazy"
+						referrerpolicy={referrerPolicy}
+						class:list={[
+							'w-full max-w-[640px] rounded-none',
+							{ '[image-rendering:pixelated]': mode === 'pixelart' },
+						]}
+					/>
 				)}
 			</div>
 		</details>
 	) : (
-		<div class:list={['content-image', mode]}>
+		<div class="checkerboard my-8 flex flex-col items-center gap-4 rounded-xl border border-border-default p-6">
 			{mode === 'mcskin' ? (
 				<SkinViewer src={imagePath} alt={alt} />
 			) : (
-				<img src={imagePath} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
+				<img
+					src={imagePath}
+					alt={alt}
+					loading="lazy"
+					referrerpolicy={referrerPolicy}
+					class:list={[
+						'w-full max-w-[640px] rounded-none',
+						{ '[image-rendering:pixelated]': mode === 'pixelart' },
+					]}
+				/>
 			)}
 		</div>
 	)
 }
-
-<style>
-	.content-image {
-		--checker-size: 16px;
-		display: flex;
-		justify-content: center;
-		margin: 1.5em auto;
-		padding: 1.5em;
-		border-radius: 12px;
-		background-color: var(--surface-muted);
-		background-image:
-			linear-gradient(45deg, var(--border-color) 25%, transparent 25%),
-			linear-gradient(-45deg, var(--border-color) 25%, transparent 25%),
-			linear-gradient(45deg, transparent 75%, var(--border-color) 75%),
-			linear-gradient(-45deg, transparent 75%, var(--border-color) 75%);
-		background-size: var(--checker-size) var(--checker-size);
-		background-position:
-			0 0,
-			0 calc(var(--checker-size) / 2),
-			calc(var(--checker-size) / 2) calc(var(--checker-size) / -2),
-			calc(var(--checker-size) / -2) 0;
-		box-shadow: var(--box-shadow);
-	}
-	.content-image img {
-		border-radius: 0;
-		margin: 0;
-	}
-	.content-image.pixelart img,
-	.content-image.mcskin img {
-		image-rendering: pixelated;
-	}
-	.content-image.mcskin {
-		flex-direction: column;
-		align-items: center;
-		gap: 1em;
-	}
-	.content-image.mcskin img {
-		width: 100%;
-		max-width: 320px;
-	}
-	.content-image.pixelart img,
-	.content-image.picture img {
-		width: 100%;
-		max-width: 640px;
-	}
-
-	.content-image-spoiler {
-		margin: 1.5em auto;
-		border-radius: 12px;
-		border: 1px solid var(--border-color);
-		background: var(--surface);
-		overflow: hidden;
-	}
-	.content-image-spoiler summary {
-		display: flex;
-		align-items: center;
-		gap: 0.75em;
-		padding: 1em 1.25em;
-		cursor: pointer;
-		list-style: none;
-		color: var(--heading-color);
-	}
-	.content-image-spoiler summary::-webkit-details-marker {
-		display: none;
-	}
-	.content-image-spoiler summary::before {
-		content: '▶';
-		font-size: 0.75em;
-		color: var(--muted-text-color);
-		transition: transform 0.15s ease;
-	}
-	.content-image-spoiler[open] summary::before {
-		transform: rotate(90deg);
-	}
-	.spoiler-icon {
-		font-size: 1.25em;
-		color: var(--accent);
-	}
-	.spoiler-text {
-		display: flex;
-		flex-direction: column;
-		gap: 0.15em;
-		font-size: 0.9em;
-	}
-	.spoiler-desc {
-		color: var(--muted-text-color);
-		font-size: 0.9em;
-	}
-	.content-image-spoiler .content-image {
-		margin: 0;
-		border-radius: 0;
-		border-top: 1px solid var(--border-color);
-	}
-</style>

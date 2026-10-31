@@ -24,114 +24,50 @@ const items = entries.map(entry => ({
 const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 ---
 
-<ul class="content-grid">
-	{
-		items.map(({ entry, rendered }) => (
-			<li>
-				<a href={`/${basePath}/${entry.id}/`}>
-					<div class:list={['thumb', thumbnailMode, { rendered }]}>
-						{rendered ? (
-							<Image src={rendered} alt="" widths={[300, 600]} sizes="300px" />
-						) : (
-							<img
-								src={entry.data.contentImages[0]}
-								alt=""
-								loading="lazy"
-								referrerpolicy={referrerPolicy}
-							/>
-						)}
-					</div>
-					<h3 class="title">{entry.data.title}</h3>
-					<p class="date">
-						<FormattedDate date={entry.data.pubDate} />
-					</p>
-				</a>
-			</li>
-		))
-	}
-</ul>
-
-<style>
-	.content-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-		gap: 1.5rem;
-		list-style-type: none;
-		margin: 0;
-		padding: 0;
-	}
-	.content-grid li a {
-		display: block;
-		text-decoration: none;
-		transition: transform 0.15s ease;
-	}
-	.content-grid li a:hover {
-		transform: translateY(-2px);
-	}
-	.thumb {
-		--checker-size: 14px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		aspect-ratio: 1 / 1;
-		margin-bottom: 0.5rem;
-		border-radius: 12px;
-		overflow: hidden;
-		background-color: var(--surface-muted);
-		background-image:
-			linear-gradient(45deg, var(--border-color) 25%, transparent 25%),
-			linear-gradient(-45deg, var(--border-color) 25%, transparent 25%),
-			linear-gradient(45deg, transparent 75%, var(--border-color) 75%),
-			linear-gradient(-45deg, transparent 75%, var(--border-color) 75%);
-		background-size: var(--checker-size) var(--checker-size);
-		background-position:
-			0 0,
-			0 calc(var(--checker-size) / 2),
-			calc(var(--checker-size) / 2) calc(var(--checker-size) / -2),
-			calc(var(--checker-size) / -2) 0;
-		box-shadow: var(--box-shadow);
-		transition: box-shadow 0.15s ease;
-	}
-	.content-grid li a:hover .thumb {
-		box-shadow: 0 0 0 3px var(--accent);
-	}
-	.thumb img {
-		max-width: 100%;
-		max-height: 100%;
-		margin: 0;
-		border-radius: 0;
-	}
-	.thumb.pixelart img,
-	.thumb.mcskin img {
-		image-rendering: pixelated;
-	}
-	.thumb.mcskin img {
-		width: 55%;
-	}
-	.thumb.rendered img {
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-		image-rendering: auto;
-	}
-	.thumb.pixelart img,
-	.thumb.picture img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-	.title {
-		margin: 0;
-		color: var(--heading-color);
-		line-height: 1.3;
-		font-size: 1.1rem;
-	}
-	.date {
-		margin: 0.15em 0 0 0;
-		color: var(--muted-text-color);
-		font-size: 0.9em;
-	}
-	.content-grid li a:hover .title {
-		color: var(--accent);
-	}
-</style>
+{
+	items.length === 0 ? (
+		<p class="py-16 text-center text-base text-text-muted">まだ投稿はありません。</p>
+	) : (
+		<ul class="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3">
+			{items.map(({ entry, rendered }) => (
+				<li>
+					<a
+						href={`/${basePath}/${entry.id}/`}
+						class="flex h-full flex-col overflow-hidden rounded-xl border border-border-default bg-bg-surface shadow-sm transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none"
+					>
+						<div class="checkerboard flex aspect-square items-center justify-center border-b border-border-default">
+							{rendered ? (
+								<Image
+									src={rendered}
+									alt=""
+									widths={[300, 600]}
+									sizes="300px"
+									class="h-full w-full object-contain"
+								/>
+							) : (
+								<img
+									src={entry.data.contentImages[0]}
+									alt=""
+									loading="lazy"
+									referrerpolicy={referrerPolicy}
+									class:list={[
+										thumbnailMode === 'mcskin'
+											? 'w-[55%] [image-rendering:pixelated]'
+											: 'h-full w-full object-cover',
+										{ '[image-rendering:pixelated]': thumbnailMode === 'pixelart' },
+									]}
+								/>
+							)}
+						</div>
+						<div class="flex flex-1 flex-col p-4">
+							<h2 class="text-lg font-semibold text-text-heading">{entry.data.title}</h2>
+							<p class="mt-auto pt-1 text-xs text-text-muted">
+								<FormattedDate date={entry.data.pubDate} />
+							</p>
+						</div>
+					</a>
+				</li>
+			))}
+		</ul>
+	)
+}

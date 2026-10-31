@@ -19,114 +19,56 @@ const Heading = `h${headingLevel}` as const;
 const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 ---
 
-<a class="entry-card" href={entry.href}>
-	<div class:list={['thumb', entry.collection]}>
+<a
+	class="flex h-full gap-4 rounded-xl border border-border-default bg-bg-surface p-4 shadow-sm transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none"
+	href={entry.href}
+>
+	<div
+		class="flex h-20 w-20 flex-none items-center justify-center overflow-hidden rounded-lg bg-bg-page-alt sm:h-24 sm:w-24"
+	>
 		{
 			typeof entry.thumbnail === 'string' ? (
 				<img
-					class:list={{ pixelated: entry.collection !== 'pictures' }}
+					class:list={[
+						'h-full w-full',
+						entry.collection === 'mcskins' ? 'object-contain' : 'object-cover',
+						{ '[image-rendering:pixelated]': entry.collection !== 'pictures' },
+					]}
 					src={entry.thumbnail}
 					alt=""
 					loading="lazy"
 					referrerpolicy={referrerPolicy}
 				/>
 			) : entry.thumbnail ? (
-				<Image src={entry.thumbnail} alt="" width={160} />
+				<Image
+					src={entry.thumbnail}
+					alt=""
+					width={192}
+					class:list={[
+						'h-full w-full',
+						entry.collection === 'apps' ? 'object-cover object-left-top' : 'object-contain',
+					]}
+				/>
 			) : (
-				<span class="placeholder">{COLLECTION_LABELS[entry.collection]}</span>
+				<span class="text-xs text-text-muted">{COLLECTION_LABELS[entry.collection]}</span>
 			)
 		}
 	</div>
-	<div class="body">
-		<p class="meta">
-			<span class="type">{COLLECTION_LABELS[entry.collection]}</span>
+	<div class="flex min-w-0 flex-1 flex-col">
+		<p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
+			<span
+				class="inline-flex items-center rounded-full bg-bg-accent-subtle px-3 py-1 font-medium text-text-accent"
+			>
+				{COLLECTION_LABELS[entry.collection]}
+			</span>
 			<FormattedDate date={entry.pubDate} />
 		</p>
-		<Heading class="title">{entry.title}</Heading>
-		<p class="description">{entry.description}</p>
-		<p class="entry-tags">{entry.tags.map(tag => `#${tag}`).join(' ')}</p>
+		<Heading class="mt-1.5 text-lg font-semibold text-text-heading">{entry.title}</Heading>
+		<p class="mt-1 line-clamp-2 text-sm text-body">{entry.description}</p>
+		{
+			entry.tags.length > 0 && (
+				<p class="mt-auto pt-2 text-xs text-text-muted">{entry.tags.map(tag => `#${tag}`).join(' ')}</p>
+			)
+		}
 	</div>
 </a>
-
-<style>
-	.entry-card {
-		display: flex;
-		gap: 1em;
-		padding: 0.75em;
-		border-radius: 12px;
-		background: var(--surface);
-		box-shadow: var(--box-shadow);
-		text-decoration: none;
-		transition: box-shadow 0.15s ease;
-	}
-	.entry-card:hover,
-	.entry-card:focus-visible {
-		box-shadow: 0 0 0 3px var(--accent);
-		outline: none;
-	}
-	.thumb {
-		display: flex;
-		flex: none;
-		align-items: center;
-		justify-content: center;
-		width: 96px;
-		height: 96px;
-		border-radius: 8px;
-		overflow: hidden;
-		background: var(--surface-muted);
-	}
-	.thumb img {
-		width: 100%;
-		height: 100%;
-		margin: 0;
-		border-radius: 0;
-		object-fit: cover;
-	}
-	.thumb img.pixelated {
-		image-rendering: pixelated;
-	}
-	.thumb.mcskins img {
-		object-fit: contain;
-	}
-	.thumb.apps img {
-		object-position: top left;
-	}
-	.placeholder {
-		color: var(--muted-text-color);
-		font-size: 0.8em;
-	}
-	.body {
-		min-width: 0;
-	}
-	.meta {
-		display: flex;
-		gap: 0.75em;
-		margin: 0;
-		color: var(--muted-text-color);
-		font-size: 0.85em;
-	}
-	.type {
-		color: var(--accent);
-		font-weight: 700;
-	}
-	.title {
-		margin: 0.15em 0 0.25em 0;
-		color: var(--heading-color);
-		font-size: 1.1rem;
-		line-height: 1.35;
-	}
-	.description {
-		display: -webkit-box;
-		margin: 0;
-		overflow: hidden;
-		color: var(--text-color);
-		font-size: 0.9em;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-	}
-	.entry-tags {
-		margin: 0.3em 0 0 0;
-		color: var(--muted-text-color);
-		font-size: 0.8em;
-	}
-</style>

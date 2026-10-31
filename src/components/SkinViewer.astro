@@ -1,4 +1,6 @@
 ---
+import Icon from './Icon.astro';
+
 interface Props {
 	src: string;
 	alt: string;
@@ -31,39 +33,51 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 
 {
 	skin ? (
-		<div class="skin-viewer" data-skin={skin}>
-			<div class="stage">
-				<canvas aria-label={`${alt}（3D表示・ドラッグで回転）`} />
+		<div class="flex w-full max-w-[320px] flex-col items-center gap-4" data-skin-viewer data-skin={skin}>
+			<div class="aspect-[3/4] w-full cursor-grab active:cursor-grabbing" data-stage>
+				<canvas class="block" aria-label={`${alt}（3D表示・ドラッグで回転）`} />
 			</div>
-			<div class="toolbar" role="toolbar" aria-label="3D表示の操作">
-				<button type="button" data-action="zoom-in" aria-label="拡大" title="拡大">
-					＋
+			<div class="flex flex-wrap justify-center gap-2" role="toolbar" aria-label="3D表示の操作" data-toolbar>
+				<button type="button" data-action="zoom-in" aria-label="拡大" title="拡大" class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-border-default bg-bg-surface text-body transition-colors hover:bg-bg-surface-alt focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none">
+					<Icon name="ZoomIn" class="h-6 w-6" />
 				</button>
-				<button type="button" data-action="zoom-out" aria-label="縮小" title="縮小">
-					−
+				<button type="button" data-action="zoom-out" aria-label="縮小" title="縮小" class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-border-default bg-bg-surface text-body transition-colors hover:bg-bg-surface-alt focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none">
+					<Icon name="Subtract" />
 				</button>
-				<button type="button" data-action="rotate-left" aria-label="左に回転" title="左に回転">
-					⟲
+				<button type="button" data-action="rotate-left" aria-label="左に回転" title="左に回転" class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-border-default bg-bg-surface text-body transition-colors hover:bg-bg-surface-alt focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none">
+					<Icon name="Rotate90DegreesCc" />
 				</button>
-				<button type="button" data-action="rotate-right" aria-label="右に回転" title="右に回転">
-					⟳
+				<button type="button" data-action="rotate-right" aria-label="右に回転" title="右に回転" class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-border-default bg-bg-surface text-body transition-colors hover:bg-bg-surface-alt focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none">
+					<Icon name="Rotate90DegreesC" />
 				</button>
 				<button
 					type="button"
 					data-action="auto-rotate"
-					aria-label="自動回転"
 					title="自動回転"
 					aria-pressed="true"
+					class="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-border-default bg-bg-surface pr-4 pl-3 text-[1rem] font-medium text-body transition-colors hover:bg-bg-surface-alt focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none aria-pressed:border-primary-200 aria-pressed:bg-bg-accent-subtle aria-pressed:text-text-accent dark:aria-pressed:border-primary-800 relative after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2"
 				>
-					↻ 自動
+					<Icon name="ReloadLoop" />
+					自動回転
 				</button>
 			</div>
-			<a class="download" href={skin} download={fileName}>
+			<a
+				href={skin}
+				download={fileName}
+				class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary-500 pr-4 pl-3 text-[1rem] font-medium text-white transition-colors hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none"
+			>
+				<Icon name="DownloadAlt" />
 				スキンをダウンロード
 			</a>
 		</div>
 	) : (
-		<img src={src} alt={alt} loading="lazy" referrerpolicy={referrerPolicy} />
+		<img
+			src={src}
+			alt={alt}
+			loading="lazy"
+			referrerpolicy={referrerPolicy}
+			class="w-full max-w-[320px] [image-rendering:pixelated]"
+		/>
 	)
 }
 
@@ -76,7 +90,7 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 	const ROTATE_STEP = Math.PI / 4;
 
 	function initViewer(container: HTMLElement) {
-		const stage = container.querySelector<HTMLElement>('.stage');
+		const stage = container.querySelector<HTMLElement>('[data-stage]');
 		const canvas = stage?.querySelector('canvas');
 		const skin = container.dataset.skin;
 		if (!stage || !canvas || !skin) return;
@@ -98,7 +112,7 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 			autoRotateButton?.setAttribute('aria-pressed', String(on));
 		};
 
-		container.querySelector('.toolbar')?.addEventListener('click', event => {
+		container.querySelector('[data-toolbar]')?.addEventListener('click', event => {
 			const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button');
 			switch (button?.dataset.action) {
 				case 'zoom-in':
@@ -132,69 +146,5 @@ const referrerPolicy = import.meta.env.DEV ? 'no-referrer' : undefined;
 			initViewer(entry.target as HTMLElement);
 		}
 	});
-	document.querySelectorAll<HTMLElement>('.skin-viewer').forEach(el => observer.observe(el));
+	document.querySelectorAll<HTMLElement>('[data-skin-viewer]').forEach(el => observer.observe(el));
 </script>
-
-<style>
-	.skin-viewer {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.75em;
-		width: 100%;
-		max-width: 320px;
-	}
-	.stage {
-		width: 100%;
-		aspect-ratio: 3 / 4;
-		cursor: grab;
-	}
-	.stage:active {
-		cursor: grabbing;
-	}
-	.stage canvas {
-		display: block;
-	}
-	.toolbar {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 0.4em;
-	}
-	.toolbar button {
-		min-width: 2.5em;
-		height: 2.5em;
-		padding: 0 0.6em;
-		border: 1px solid var(--border-color);
-		border-radius: 8px;
-		background: var(--surface);
-		color: var(--heading-color);
-		font: inherit;
-		font-size: 0.95em;
-		cursor: pointer;
-	}
-	.toolbar button:hover,
-	.toolbar button:focus-visible {
-		border-color: var(--accent);
-		color: var(--accent);
-		outline: none;
-	}
-	.toolbar button[aria-pressed='true'] {
-		background: var(--accent);
-		border-color: var(--accent);
-		color: #fff;
-	}
-	.download {
-		padding: 0.6em 1.4em;
-		border-radius: 999px;
-		background: var(--accent);
-		color: #fff;
-		font-weight: 700;
-		text-decoration: none;
-	}
-	.download:hover,
-	.download:focus-visible {
-		box-shadow: 0 0 0 3px var(--accent);
-		outline: none;
-	}
-</style>
