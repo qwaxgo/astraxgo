@@ -1,0 +1,38 @@
+---
+// Inline SVG icon from src/assets/icons (melta UI's Charcoal set; see the README there).
+// Icons are decorative: pair them with visible text or an aria-label on the control.
+const ICONS = import.meta.glob<string>('../assets/icons/*.svg', {
+	query: '?raw',
+	import: 'default',
+	eager: true,
+});
+
+export type IconName =
+	| 'Close'
+	| 'DownloadAlt'
+	| 'Menu'
+	| 'Moon'
+	| 'Next'
+	| 'OpenInNew'
+	| 'ReloadLoop'
+	| 'Rotate90DegreesC'
+	| 'Rotate90DegreesCc'
+	| 'Search'
+	| 'Subtract'
+	| 'Sun'
+	| 'Warning'
+	| 'ZoomIn';
+
+interface Props {
+	name: IconName;
+	/** Size and colour, e.g. `w-5 h-5`. */
+	class?: string;
+}
+
+const { name, class: className = 'w-5 h-5' } = Astro.props;
+const svg = ICONS[`../assets/icons/${name}.svg`]
+	.replace(/\s(width|height)="[^"]*"/g, '')
+	.replace('<svg', `<svg class="shrink-0 ${className}" aria-hidden="true" focusable="false"`);
+---
+
+<Fragment set:html={svg} />
