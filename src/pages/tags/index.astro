@@ -1,8 +1,8 @@
 ---
-import BaseHead from '../../components/BaseHead.astro';
 import EntryCard from '../../components/EntryCard.astro';
-import Footer from '../../components/Footer.astro';
-import Header from '../../components/Header.astro';
+import Icon from '../../components/Icon.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import { COLLECTION_LABELS, getTaggedEntries, TAGGED_COLLECTIONS } from '../../lib/tags';
 
 const entries = await getTaggedEntries();
@@ -15,76 +15,80 @@ for (const tag of entries.flatMap(entry => entry.tags)) {
 const tags = [...tagCounts.keys()].sort(
 	(a, b) => tagCounts.get(b)! - tagCounts.get(a)! || a.localeCompare(b, 'ja'),
 );
+
+const types = [{ value: '', label: 'すべて' }, ...TAGGED_COLLECTIONS.map(c => ({ value: c, label: COLLECTION_LABELS[c] }))];
 ---
 
-<!doctype html>
-<html lang="ja">
-	<head>
-		<BaseHead
-			title="タグ検索"
-			description="ブログ・イラスト・マイクラスキン・アプリをタグで検索できます"
-		/>
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>タグ検索</h1>
+<BaseLayout title="タグ検索" description="ブログ・イラスト・マイクラスキン・アプリをタグで検索できます">
+	<PageHeader title="タグ検索" description="ブログ・イラスト・ドット絵・マイクラスキン・アプリをタグで探せます" />
 
-			<fieldset class="types">
-				<legend class="sr-only">種類</legend>
-				<label>
-					<input type="radio" name="type" value="" checked />
-					<span>すべて</span>
-				</label>
-				{
-					TAGGED_COLLECTIONS.map(collection => (
-						<label>
-							<input type="radio" name="type" value={collection} />
-							<span>{COLLECTION_LABELS[collection]}</span>
-						</label>
-					))
-				}
-			</fieldset>
+	<fieldset class="mb-6 min-w-0 overflow-x-auto border-b border-border-default">
+		<legend class="sr-only">種類</legend>
+		<div class="flex">
+			{
+				types.map(({ value, label }) => (
+					<label class="relative cursor-pointer">
+						<input type="radio" name="type" value={value} checked={value === ''} class="peer sr-only" />
+						<span class="-mb-px block border-b-2 border-transparent px-4 py-2.5 text-sm font-medium whitespace-nowrap text-text-muted transition-colors peer-checked:border-primary-500 peer-checked:font-semibold peer-checked:text-text-accent peer-focus-visible:ring-2 peer-focus-visible:ring-primary-500/50 hover:text-text-heading">
+							{label}
+						</span>
+					</label>
+				))
+			}
+		</div>
+	</fieldset>
 
-			<div class="tag-picker">
-				<input
-					type="search"
-					class="tag-filter"
-					placeholder="タグを絞り込む…"
-					aria-label="タグ名で絞り込む"
-				/>
-				<ul class="tag-chips" aria-label="タグ">
-					{
-						tags.map(tag => (
-							<li>
-								<button type="button" data-tag={tag} aria-pressed="false">
-									#{tag} <span class="count">{tagCounts.get(tag)}</span>
-								</button>
-							</li>
-						))
-					}
-				</ul>
-			</div>
+	<div class="mb-6 rounded-xl border border-border-default bg-bg-surface p-6 shadow-sm">
+		<div class="relative mb-4 leading-normal">
+			<Icon name="Search" class="pointer-events-none absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-text-muted" />
+			<input
+				type="search"
+				class="tag-filter w-full rounded-lg border border-border-strong bg-bg-surface py-2 pr-3 pl-10 text-base text-text-heading caret-primary-500 placeholder:text-text-muted focus:border-primary-500 focus:ring-2 focus:ring-primary-500/50 focus:outline-none"
+				placeholder="タグを絞り込む…"
+				aria-label="タグ名で絞り込む"
+			/>
+		</div>
+		<ul class="tag-chips flex flex-wrap gap-2" aria-label="タグ">
+			{
+				tags.map(tag => (
+					<li>
+						<button
+							type="button"
+							data-tag={tag}
+							aria-pressed="false"
+							class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-border-default bg-bg-surface px-3 py-1 text-sm font-medium text-body transition-colors hover:bg-bg-surface-alt aria-pressed:border-primary-200 aria-pressed:bg-bg-accent-subtle aria-pressed:text-text-accent dark:aria-pressed:border-primary-800 focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none"
+						>
+							#{tag}
+							<span class="count text-xs text-text-muted">{tagCounts.get(tag)}</span>
+						</button>
+					</li>
+				))
+			}
+		</ul>
+	</div>
 
-			<p class="summary" aria-live="polite">
-				<span><span class="result-count">{entries.length}</span>件</span>
-				<button type="button" class="clear" hidden>条件をクリア</button>
-			</p>
+	<div class="mb-4 flex items-center gap-4" aria-live="polite">
+		<p class="text-sm text-text-muted"><span class="result-count font-semibold text-text-heading">{entries.length}</span>件</p>
+		<button
+			type="button"
+			class="clear inline-flex h-8 cursor-pointer items-center justify-center rounded-lg border border-border-default bg-bg-surface px-3 text-[0.875rem] font-medium text-body transition-colors hover:bg-bg-surface-alt focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none relative after:absolute after:inset-x-0 after:top-1/2 after:h-11 after:-translate-y-1/2"
+			hidden
+		>
+			条件をクリア
+		</button>
+	</div>
 
-			<ul class="results">
-				{
-					entries.map(entry => (
-						<li data-collection={entry.collection} data-tags={JSON.stringify(entry.tags)}>
-							<EntryCard entry={entry} />
-						</li>
-					))
-				}
-			</ul>
-			<p class="empty" hidden>条件に合うものはありません。</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+	<ul class="results grid grid-cols-1 gap-4">
+		{
+			entries.map(entry => (
+				<li data-collection={entry.collection} data-tags={JSON.stringify(entry.tags)}>
+					<EntryCard entry={entry} />
+				</li>
+			))
+		}
+	</ul>
+	<p class="empty py-16 text-center text-base text-text-muted" hidden>条件に合うものはありません。</p>
+</BaseLayout>
 
 <script>
 	// State lives in the URL (?type=<collection>&tag=<a>&tag=<b>) so searches can be
@@ -161,129 +165,3 @@ const tags = [...tagCounts.keys()].sort(
 
 	render();
 </script>
-
-<style>
-	.types {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5em;
-		margin: 0 0 1em 0;
-		padding: 0;
-		border: none;
-	}
-	.types label {
-		cursor: pointer;
-	}
-	.types input {
-		position: absolute;
-		opacity: 0;
-		pointer-events: none;
-	}
-	.types span {
-		display: inline-block;
-		padding: 0.4em 1.1em;
-		border: 1px solid var(--border-color);
-		border-radius: 999px;
-		background: var(--surface);
-		color: var(--heading-color);
-	}
-	.types input:checked + span {
-		border-color: var(--accent);
-		background: var(--accent);
-		color: #fff;
-	}
-	.types input:focus-visible + span {
-		box-shadow: 0 0 0 3px var(--accent);
-	}
-
-	.tag-picker {
-		margin-bottom: 1em;
-		padding: 1em;
-		border-radius: 12px;
-		background: var(--surface);
-		box-shadow: var(--box-shadow);
-	}
-	.tag-filter {
-		box-sizing: border-box;
-		width: 100%;
-		margin-bottom: 0.75em;
-		padding: 0.5em 0.8em;
-		border: 1px solid var(--border-color);
-		border-radius: 8px;
-		background: var(--surface-muted);
-		color: var(--text-color);
-		font: inherit;
-	}
-	.tag-chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4em;
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-	.tag-chips button {
-		padding: 0.3em 0.8em;
-		border: 1px solid var(--border-color);
-		border-radius: 999px;
-		background: var(--surface);
-		color: var(--accent);
-		font: inherit;
-		font-size: 0.9em;
-		cursor: pointer;
-	}
-	.tag-chips button:hover,
-	.tag-chips button:focus-visible {
-		border-color: var(--accent);
-		outline: none;
-	}
-	.tag-chips button[aria-pressed='true'] {
-		border-color: var(--accent);
-		background: var(--accent);
-		color: #fff;
-	}
-	.tag-chips .count {
-		margin-left: 0.2em;
-		opacity: 0.7;
-		font-size: 0.85em;
-	}
-
-	.summary {
-		display: flex;
-		align-items: center;
-		gap: 1em;
-		margin: 0 0 1em 0;
-		color: var(--muted-text-color);
-	}
-	.clear {
-		padding: 0.2em 0.8em;
-		border: 1px solid var(--border-color);
-		border-radius: 999px;
-		background: none;
-		color: var(--heading-color);
-		font: inherit;
-		font-size: 0.9em;
-		cursor: pointer;
-	}
-	.clear:hover,
-	.clear:focus-visible {
-		border-color: var(--accent);
-		color: var(--accent);
-		outline: none;
-	}
-
-	.results {
-		display: grid;
-		gap: 1em;
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-	.results li[hidden],
-	.tag-chips li[hidden] {
-		display: none;
-	}
-	.empty {
-		color: var(--muted-text-color);
-	}
-</style>

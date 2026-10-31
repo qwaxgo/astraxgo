@@ -1,10 +1,8 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
 import EntryCard from '../components/EntryCard.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import JsonLd from '../components/JsonLd.astro';
+import Icon from '../components/Icon.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import BaseLayout from '../layouts/BaseLayout.astro';
 import { websiteLd } from '../lib/structuredData';
 import { getTaggedEntries } from '../lib/tags';
 
@@ -14,56 +12,38 @@ const RECENT_COUNT = 10;
 const recent = (await getTaggedEntries()).slice(0, RECENT_COUNT);
 ---
 
-<!doctype html>
-<html lang="ja">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<JsonLd data={websiteLd(Astro.site!)} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>qwaxgo.com</h1>
-			<p>
-				qwaxgo.comにようこそ！
-				この度リニューアルオープンしました！
-			</p>
+<BaseLayout
+	title={SITE_TITLE}
+	description={SITE_DESCRIPTION}
+	structuredData={websiteLd(Astro.site!)}
+>
+	<section>
+		<h1 class="text-3xl font-bold text-text-heading">qwaxgo.com</h1>
+		<p class="mt-2 text-base text-body">
+			qwaxgo.comにようこそ！
+			この度リニューアルオープンしました！
+		</p>
+	</section>
 
-			<section class="recent">
-				<h2>最近の投稿</h2>
-				<ul>
-					{
-						recent.map(entry => (
-							<li>
-								<EntryCard entry={entry} headingLevel={3} />
-							</li>
-						))
-					}
-				</ul>
-				<p class="more"><a href="/tags/">すべての投稿を見る →</a></p>
-			</section>
-		</main>
-		<Footer />
-	</body>
-</html>
-
-<style>
-	.recent {
-		margin-top: 2.5em;
-	}
-	.recent h2 {
-		margin: 0 0 0.75em 0;
-		font-size: 1.4rem;
-	}
-	.recent ul {
-		display: grid;
-		gap: 1em;
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-	.more {
-		margin: 1em 0 0 0;
-		text-align: right;
-	}
-</style>
+	<section class="mt-14" aria-labelledby="recent-heading">
+		<div class="mb-6 flex items-end justify-between gap-4">
+			<h2 id="recent-heading" class="text-2xl font-bold text-text-heading">最近の投稿</h2>
+			<a
+				href="/tags/"
+				class="inline-flex items-center gap-1 rounded-lg text-sm font-medium text-text-accent hover:underline focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none"
+			>
+				すべての投稿を見る
+				<Icon name="Next" class="h-4 w-4" />
+			</a>
+		</div>
+		<ul class="grid grid-cols-1 gap-4 md:grid-cols-2">
+			{
+				recent.map(entry => (
+					<li>
+						<EntryCard entry={entry} headingLevel={3} />
+					</li>
+				))
+			}
+		</ul>
+	</section>
+</BaseLayout>

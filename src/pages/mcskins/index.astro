@@ -1,26 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseHead from '../../components/BaseHead.astro';
 import ContentGrid from '../../components/ContentGrid.astro';
-import Footer from '../../components/Footer.astro';
-import Header from '../../components/Header.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const entries = (await getCollection('mcskins', ({ data }) => !data.draft)).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 
-<!doctype html>
-<html lang="ja">
-	<head>
-		<BaseHead title="マイクラスキン" description="配布中のMinecraftスキン一覧です" />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>マイクラスキン</h1>
-			<ContentGrid entries={entries} basePath="mcskins" thumbnailMode="mcskin" />
-		</main>
-		<Footer />
-	</body>
-</html>
+<BaseLayout title="マイクラスキン" description="配布中のMinecraftスキン一覧です">
+	<PageHeader title="マイクラスキン" description="配布中のMinecraftスキン一覧です" />
+	<ContentGrid entries={entries} basePath="mcskins" thumbnailMode="mcskin" />
+</BaseLayout>
