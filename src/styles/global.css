@@ -1,200 +1,275 @@
 /*
-  The CSS in this style tag is based off of Bear Blog's default CSS.
-  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
-  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
- */
+  Design tokens and base styles follow melta UI (https://github.com/tsubotax/melta-ui, MIT):
+  DESIGN.md / foundations/theme.md / scripts/ds-theme.css.
+  Components style themselves with Tailwind utilities; this file only holds
+  the tokens, the page-wide base and the prose styles for Markdown content.
+*/
 
-:root {
-	color-scheme: light;
-	--accent: #2337ff;
-	--accent-dark: #000d8a;
-	--black: 15, 18, 25;
-	--gray: 96, 115, 159;
-	--gray-light: 229, 233, 240;
-	--gray-dark: 34, 41, 57;
-	--gray-gradient: rgba(var(--gray-light), 50%), #fff;
-	--surface: #ffffff;
-	--surface-muted: #f4f6fb;
-	--body-background-color: #ffffff;
-	--body-background: linear-gradient(var(--gray-gradient)) no-repeat;
-	--text-color: rgb(var(--gray-dark));
-	--heading-color: rgb(var(--black));
-	--muted-text-color: rgba(var(--gray), 0.9);
-	--code-background: rgb(var(--gray-light));
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
 
-html.theme-disable-transitions *,
-html.theme-disable-transitions *::before,
-html.theme-disable-transitions *::after {
-	transition: none !important;
-}
-	--border-color: rgba(var(--gray-light), 0.8);
-	--elevated-shadow:
-		0 2px 6px rgba(var(--gray), 0.25), 0 8px 24px rgba(var(--gray), 0.33),
-		0 16px 32px rgba(var(--gray), 0.33);
-	--box-shadow: var(--elevated-shadow);
+/* The theme script in BaseHead sets data-theme on <html>. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+	--font-sans:
+		'Inter Variable', 'Inter', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP',
+		sans-serif;
+	--font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+	/* Header: the full link row fits on one line from here; below it is a hamburger menu. */
+	--breakpoint-nav: 68.75rem;
+
+	/* All eight sizes differ from Tailwind's defaults: body text is 18px / 2.0. */
+	--text-xxs: 0.625rem;
+	--text-xxs--line-height: 1.4;
+	--text-xs: 0.8125rem;
+	--text-xs--line-height: 1.4;
+	--text-sm: 0.9375rem;
+	--text-sm--line-height: 1.7;
+	--text-base: 1.125rem;
+	--text-base--line-height: 2;
+	--text-lg: 1.25rem;
+	--text-lg--line-height: 1.5;
+	--text-xl: 1.375rem;
+	--text-xl--line-height: 1.4;
+	--text-2xl: 1.625rem;
+	--text-2xl--line-height: 1.4;
+	--text-3xl: 2rem;
+	--text-3xl--line-height: 1.4;
+
+	--color-primary-50: #f0f5ff;
+	--color-primary-100: #dde8ff;
+	--color-primary-200: #c0d4ff;
+	--color-primary-300: #95b6ff;
+	--color-primary-400: #6492ff;
+	--color-primary-500: #2b70ef;
+	--color-primary-600: #2250df;
+	--color-primary-700: #1a40b5;
+	--color-primary-800: #13318d;
+	--color-primary-900: #0e266a;
+	--color-primary-950: #07194e;
 }
 
-:root[data-theme='dark'] {
-	color-scheme: dark;
-	--accent: #8ca1ff;
-	--accent-dark: #4f6cff;
-	--black: 232, 236, 255;
-	--gray: 145, 162, 201;
-	--gray-light: 52, 58, 78;
-	--gray-dark: 228, 233, 255;
-	--gray-gradient: rgba(25, 28, 39, 0.85), #0f1219;
-	--surface: #141823;
-	--surface-muted: #1b1f2c;
-	--body-background-color: #0f1219;
-	--body-background: linear-gradient(var(--gray-gradient)) no-repeat;
-	--text-color: rgb(var(--gray-dark));
-	--heading-color: rgb(245, 247, 255);
-	--muted-text-color: rgba(var(--gray), 0.85);
-	--code-background: rgba(46, 52, 72, 0.85);
-	--border-color: rgba(64, 70, 90, 0.85);
-	--elevated-shadow:
-		0 2px 8px rgba(0, 0, 0, 0.25), 0 16px 32px rgba(3, 5, 12, 0.35);
-	--box-shadow: var(--elevated-shadow);
+/* Semantic colours that switch with the theme (light / dark values below). */
+@theme inline {
+	--color-body: var(--text-default);
+	--color-bg-page: var(--bg-page);
+	--color-bg-page-alt: var(--bg-page-alt);
+	--color-bg-surface: var(--bg-surface);
+	--color-bg-surface-alt: var(--bg-surface-alt);
+	--color-bg-accent-subtle: var(--bg-accent-subtle);
+	--color-text-heading: var(--text-heading);
+	--color-text-default: var(--text-default);
+	--color-text-muted: var(--text-muted);
+	--color-text-accent: var(--text-accent);
+	--color-border-default: var(--border-default);
+	--color-border-strong: var(--border-strong);
+	--color-nav-active: var(--sidebar-active-color);
+	--color-nav-active-bg: var(--sidebar-active-bg);
 }
-@font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-regular.woff") format("woff");
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
-}
-@font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-bold.woff") format("woff");
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
-}
-body {
-	font-family: "Atkinson", sans-serif;
-	margin: 0;
-	padding: 0;
-	text-align: left;
-	background: var(--body-background);
-	background-size: 100% 600px;
-	background-color: var(--body-background-color);
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	color: var(--text-color);
-	font-size: 20px;
-	line-height: 1.7;
-}
-main {
-	width: 720px;
-	max-width: calc(100% - 2em);
-	margin: auto;
-	padding: 3em 1em;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	margin: 0 0 0.5rem 0;
-	color: var(--heading-color);
-	line-height: 1.2;
-}
-h1 {
-	font-size: 3.052em;
-}
-h2 {
-	font-size: 2.441em;
-}
-h3 {
-	font-size: 1.953em;
-}
-h4 {
-	font-size: 1.563em;
-}
-h5 {
-	font-size: 1.25em;
-}
-strong,
-b {
-	font-weight: 700;
-}
-a {
-	color: var(--accent);
-}
-a:hover {
-	color: var(--accent);
-}
-p {
-	margin-bottom: 1em;
-}
-.prose p {
-	margin-bottom: 2em;
-}
-textarea {
-	width: 100%;
-	font-size: 16px;
-}
-input {
-	font-size: 16px;
-}
-table {
-	width: 100%;
-}
-img {
-	max-width: 100%;
-	height: auto;
-	border-radius: 8px;
-}
-code {
-	padding: 2px 5px;
-	background-color: var(--code-background);
-	border-radius: 2px;
-}
-pre {
-	padding: 1.5em;
-	border-radius: 8px;
-	background: var(--surface-muted);
-	color: inherit;
-	box-shadow: inset 0 0 0 1px var(--border-color);
-}
-pre > code {
-	all: unset;
-}
-blockquote {
-	border-left: 4px solid var(--accent);
-	padding: 0 0 0 20px;
-	margin: 0px;
-	font-size: 1.333em;
-	color: var(--heading-color);
-}
-hr {
-	border: none;
-	border-top: 1px solid var(--border-color);
-}
-@media (max-width: 720px) {
+
+@layer base {
+	:root {
+		color-scheme: light;
+		--bg-page: #f9fafb;
+		--bg-page-alt: #f3f4f6;
+		--bg-surface: #ffffff;
+		--bg-surface-alt: #f9fafb;
+		--bg-accent-subtle: #f0f5ff;
+		--text-heading: #0f172a;
+		--text-default: #3d4b5f;
+		--text-muted: #64748b;
+		--text-accent: #2b70ef;
+		--border-default: #e2e8f0;
+		--border-strong: #cbd5e1;
+		--sidebar-active-color: #2b70ef;
+		--sidebar-active-bg: #f0f5ff;
+	}
+	:root[data-theme='dark'] {
+		color-scheme: dark;
+		--bg-page: #161718;
+		--bg-page-alt: #232525;
+		--bg-surface: #1b1c1d;
+		--bg-surface-alt: #161718;
+		--bg-accent-subtle: rgb(43 112 239 / 0.12);
+		--text-heading: #eeeeee;
+		--text-default: #eeeeee;
+		--text-muted: #a3a3a3;
+		--text-accent: #6492ff;
+		--border-default: #373839;
+		--border-strong: #777777;
+		--sidebar-active-color: #95b6ff;
+		--sidebar-active-bg: #0e266a;
+	}
+
+	html.theme-disable-transitions *,
+	html.theme-disable-transitions *::before,
+	html.theme-disable-transitions *::after {
+		transition: none !important;
+	}
+
 	body {
-		font-size: 18px;
+		background-color: var(--bg-page);
+		color: var(--text-default);
+		font-family: var(--font-sans);
+		font-size: var(--text-base);
+		line-height: 2;
+		letter-spacing: 0.02em;
+		overflow-wrap: break-word;
 	}
-	main {
-		padding: 1em;
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: var(--text-heading);
+		line-height: 1.4;
+		letter-spacing: 0.01em;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
 	}
 }
 
-.sr-only {
-	border: 0;
-	padding: 0;
-	margin: 0;
-	position: absolute !important;
-	height: 1px;
-	width: 1px;
-	overflow: hidden;
-	/* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
-	clip: rect(1px 1px 1px 1px);
-	/* maybe deprecated but we need to support legacy browsers */
-	clip: rect(1px, 1px, 1px, 1px);
-	/* modern browsers, clip-path works inwards from each corner */
-	clip-path: inset(50%);
-	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
-	white-space: nowrap;
+/* Checkerboard behind artwork, so transparent pixels read as transparent. */
+@utility checkerboard {
+	--checker-size: 16px;
+	background-color: var(--bg-surface-alt);
+	background-image:
+		linear-gradient(45deg, var(--border-default) 25%, transparent 25%),
+		linear-gradient(-45deg, var(--border-default) 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, var(--border-default) 75%),
+		linear-gradient(-45deg, transparent 75%, var(--border-default) 75%);
+	background-size: var(--checker-size) var(--checker-size);
+	background-position:
+		0 0,
+		0 calc(var(--checker-size) / 2),
+		calc(var(--checker-size) / 2) calc(var(--checker-size) / -2),
+		calc(var(--checker-size) / -2) 0;
+}
+
+/* Markdown / MDX bodies, where elements arrive without classes. */
+@layer components {
+	.prose {
+		color: var(--text-default);
+
+		& > * + * {
+			margin-top: 1.25em;
+		}
+		& h2 {
+			margin-top: 2.5em;
+			padding-bottom: 0.4em;
+			border-bottom: 1px solid var(--border-default);
+			font-size: var(--text-2xl);
+			font-weight: 700;
+		}
+		& h3 {
+			margin-top: 2em;
+			font-size: var(--text-xl);
+			font-weight: 700;
+		}
+		& h4 {
+			margin-top: 1.75em;
+			font-size: var(--text-lg);
+			font-weight: 700;
+		}
+		/* Links styled as components (buttons, cards) carry their own classes. */
+		& a:not([class]),
+		& a.data-footnote-backref {
+			color: var(--text-accent);
+			text-decoration: underline;
+			text-underline-offset: 0.2em;
+		}
+		& a:not([class]):hover {
+			color: var(--color-primary-700);
+		}
+		:root[data-theme='dark'] & a:not([class]):hover {
+			color: var(--color-primary-300);
+		}
+		& strong {
+			color: var(--text-heading);
+			font-weight: 700;
+		}
+		& ul,
+		& ol {
+			padding-left: 1.5em;
+		}
+		& ul {
+			list-style: disc;
+		}
+		& ol {
+			list-style: decimal;
+		}
+		& li + li {
+			margin-top: 0.25em;
+		}
+		& li::marker {
+			color: var(--text-muted);
+		}
+		& img {
+			max-width: 100%;
+			height: auto;
+			border-radius: var(--radius-lg);
+		}
+		& hr {
+			margin: 2.5em 0;
+			border-top: 1px solid var(--border-default);
+		}
+		& blockquote {
+			padding: 1em 1.25em;
+			border: 1px solid var(--border-default);
+			border-radius: var(--radius-lg);
+			background: var(--bg-surface-alt);
+			color: var(--text-muted);
+		}
+		& :not(pre) > code {
+			padding: 0.15em 0.4em;
+			border-radius: var(--radius-sm);
+			background: var(--bg-page-alt);
+			font-family: var(--font-mono);
+			font-size: 0.875em;
+		}
+		& pre {
+			overflow-x: auto;
+			padding: 1em 1.25em;
+			border: 1px solid var(--border-default);
+			border-radius: var(--radius-lg);
+			font-size: var(--text-sm);
+			line-height: 1.7;
+		}
+		& pre code {
+			font-family: var(--font-mono);
+		}
+		& table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: var(--text-sm);
+		}
+		& th,
+		& td {
+			padding: 0.6em 0.9em;
+			border-bottom: 1px solid var(--border-default);
+			text-align: left;
+		}
+		& th {
+			color: var(--text-muted);
+			font-weight: 500;
+		}
+		& .footnotes {
+			margin-top: 3em;
+			padding-top: 1em;
+			border-top: 1px solid var(--border-default);
+			color: var(--text-muted);
+			font-size: var(--text-sm);
+		}
+	}
 }
