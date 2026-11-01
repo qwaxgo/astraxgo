@@ -5,6 +5,14 @@ export const SITE_TITLE = 'qwaxgo.com';
 export const SITE_DESCRIPTION = 'welcome to qwaxgo.com!';
 export const SITE_AUTHOR = 'qwaxgo';
 
+// Browser tab title: the page name and the site name joined by this, e.g. "アプリ | qwaxgo.com".
+export const TITLE_SEPARATOR = ' | ';
+
+/** Tab title for a page; without a page name (the home page) it is the site name alone. */
+export function documentTitle(pageTitle?: string): string {
+	return [pageTitle, SITE_TITLE].filter(Boolean).join(TITLE_SEPARATOR);
+}
+
 // The author's accounts, shown in the header, the footer and on /about.
 export const SOCIAL_LINKS = [
 	{ label: 'X（Tech）', handle: '@qwaxgo', href: 'https://x.com/qwaxgo', icon: 'x' },

@@ -6,7 +6,8 @@ import Header from '../components/Header.astro';
 import JsonLd from '../components/JsonLd.astro';
 
 interface Props {
-	title: string;
+	/** Page name; omitted on the home page. */
+	title?: string;
 	description: string;
 	image?: ImageMetadata;
 	ogImageUrl?: string;

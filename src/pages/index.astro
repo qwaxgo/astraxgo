@@ -1,7 +1,7 @@
 ---
 import EntryCard from '../components/EntryCard.astro';
 import Icon from '../components/Icon.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { SITE_DESCRIPTION } from '../consts';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { websiteLd } from '../lib/structuredData';
 import { getTaggedEntries } from '../lib/tags';
@@ -13,7 +13,6 @@ const recent = (await getTaggedEntries()).slice(0, RECENT_COUNT);
 ---
 
 <BaseLayout
-	title={SITE_TITLE}
 	description={SITE_DESCRIPTION}
 	structuredData={websiteLd(Astro.site!)}
 >
