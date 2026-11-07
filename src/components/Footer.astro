@@ -1,15 +1,17 @@
 ---
-import { SITE_AUTHOR } from '../consts';
+import { copyrightYears, SITE_AUTHOR } from '../consts';
 import SocialLinks from './SocialLinks.astro';
-
-const today = new Date();
 ---
 
 <footer class="border-t border-border-default bg-bg-surface">
 	<div
 		class="mx-auto flex max-w-[1042px] flex-col-reverse items-center gap-4 px-4 py-8 sm:flex-row sm:justify-between"
 	>
-		<p class="text-sm text-text-muted">&copy; {today.getFullYear()} {SITE_AUTHOR}. All rights reserved.</p>
+		<!-- The English notice is the international standard; the Japanese line says the same for Japanese readers. -->
+		<p class="text-center text-sm text-text-muted sm:text-left">
+			<span lang="en">&copy; {copyrightYears()} {SITE_AUTHOR}. All rights reserved.</span>
+			<span class="block text-xs">当サイトのコンテンツの無断転載・無断使用を禁じます。</span>
+		</p>
 		<SocialLinks />
 	</div>
 </footer>

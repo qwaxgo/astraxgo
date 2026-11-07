@@ -5,6 +5,14 @@ export const SITE_TITLE = 'qwaxgo.com';
 export const SITE_DESCRIPTION = 'welcome to qwaxgo.com!';
 export const SITE_AUTHOR = 'qwaxgo';
 
+// Copyright runs from the site's first year to the build year, e.g. "2021–2026".
+export const COPYRIGHT_START_YEAR = 2021;
+
+/** Year span for the copyright notice; a single year while it is still the start year. */
+export function copyrightYears(currentYear = new Date().getFullYear()): string {
+	return [...new Set([COPYRIGHT_START_YEAR, currentYear])].join('–');
+}
+
 // Browser tab title: the page name and the site name joined by this, e.g. "アプリ | qwaxgo.com".
 export const TITLE_SEPARATOR = ' | ';
 
