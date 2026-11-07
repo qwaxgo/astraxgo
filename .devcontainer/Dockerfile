@@ -65,6 +65,10 @@ RUN git clone --depth=1 https://github.com/mattmc3/antidote.git /home/node/.anti
 RUN mkdir -p /home/node/.ssh && \
     chmod 700 /home/node/.ssh
 
+# Create ~/.config as node before ~/.config/gh is bind-mounted; otherwise Docker
+# creates it as root and tools like Astro can't write their config there
+RUN mkdir -p /home/node/.config
+
 # Copy setup script
 COPY --chown=node:node .devcontainer/setup_zsh.sh /tmp/setup_zsh.sh
 RUN chmod +x /tmp/setup_zsh.sh
