@@ -1,16 +1,18 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import icon from '../assets/profile/icon.png';
 import FormattedDate from '../components/FormattedDate.astro';
 import TagLinks from '../components/TagLinks.astro';
+import { SITE_AUTHOR } from '../consts';
+import { entrySlug, ogImagePath, type OgRef } from '../lib/og/cards';
 import { entryLd } from '../lib/structuredData';
 import BaseLayout from './BaseLayout.astro';
 
 type Props = CollectionEntry<'blog'>['data'] & { id: string };
 
 const { title, description, author, pubDate, updatedDate, heroImage, tags, id } = Astro.props;
-const ogSlug = id.replace(/\.(md|mdx)$/, '');
-const ogImageUrl = `/og/light/blog/${ogSlug}.png`;
+const og: OgRef = { collection: 'blog', slug: entrySlug(id) };
 
 const site = Astro.site!;
 const structuredData = entryLd({
@@ -25,7 +27,8 @@ const structuredData = entryLd({
 	tags,
 	images: [
 		...(heroImage ? [new URL(heroImage.src, Astro.url).href] : []),
-		new URL(ogImageUrl, site).href,
+		new URL(ogImagePath(og, 'wide'), site).href,
+		new URL(ogImagePath(og, 'square'), site).href,
 	],
 });
 ---
@@ -33,7 +36,7 @@ const structuredData = entryLd({
 <BaseLayout
 	title={title}
 	description={description}
-	ogImageUrl={ogImageUrl}
+	og={og}
 	structuredData={structuredData}
 >
 	<article class="mx-auto max-w-3xl">
@@ -60,6 +63,23 @@ const structuredData = entryLd({
 				}
 			</p>
 			<h1 class="mt-2 text-3xl font-bold text-text-heading">{title}</h1>
+			<a
+				href="/about/"
+				class="mt-4 inline-flex min-h-11 items-center gap-3 rounded-lg pr-2 text-sm font-medium text-text-heading hover:underline focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none"
+			>
+				{
+					author === SITE_AUTHOR && (
+						<Image
+							src={icon}
+							alt=""
+							width={40}
+							densities={[1, 2]}
+							class="h-10 w-10 rounded-full border border-border-default"
+						/>
+					)
+				}
+				{author}
+			</a>
 			<div class="mt-4">
 				<TagLinks tags={tags} />
 			</div>
