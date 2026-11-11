@@ -1,5 +1,6 @@
 import { getCollection } from 'astro:content';
 import { SITE_AUTHOR, SITE_TITLE } from '../consts';
+import { isoDate } from './dates';
 import { COLLECTION_LABELS, getTaggedEntries, TAGGED_COLLECTIONS, type TaggedEntry } from './tags';
 
 // Builds /llms.txt and /llms-full.txt (https://llmstxt.org/): a Markdown index of
@@ -70,7 +71,7 @@ export async function llmsFull(site: URL): Promise<string> {
 				`### ${entry.title}`,
 				'',
 				`- URL: ${abs(entry.page)}`,
-				`- 公開日: ${entry.pubDate.toISOString().slice(0, 10)}`,
+				`- 公開日: ${isoDate(entry.pubDate)}`,
 			);
 			if (entry.tags.length > 0) lines.push(`- タグ: ${entry.tags.join(', ')}`);
 			const app = appUrls.get(entry.id);

@@ -1,10 +1,12 @@
 ---
+import { isoDate } from '../lib/dates';
+
 interface Props {
 	date: Date;
 }
 
-// YYYY-MM-DD, the date format of melta UI's ja locale.
+// YYYY-MM-DD in Japan time, the date format of melta UI's ja locale.
 const { date } = Astro.props;
 ---
 
-<time datetime={date.toISOString()}>{date.toISOString().slice(0, 10)}</time>
+<time datetime={date.toISOString()}>{isoDate(date)}</time>

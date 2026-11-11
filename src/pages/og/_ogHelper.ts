@@ -1,6 +1,7 @@
 import type { CollectionEntry } from 'astro:content';
 import type { OGImageOptions } from 'astro-og-canvas';
 import { SITE_AUTHOR } from '../../consts';
+import { SITE_TIME_ZONE } from '../../lib/dates';
 
 /** Noto Sans JP (latin + japanese) from fontsource CDN */
 export const NOTO_SANS_JP_FONTS = [
@@ -48,6 +49,7 @@ export function buildImageOptions(
 		year: 'numeric',
 		month: 'long',
 		day: 'numeric',
+		timeZone: SITE_TIME_ZONE,
 	});
 	const descText = `${SITE_AUTHOR}  ·  ${dateStr}`;
 	const isDark = theme === 'dark';
