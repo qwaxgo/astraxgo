@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
 import TagLinks from '../components/TagLinks.astro';
+import { entrySlug, ogImagePath, type OgRef } from '../lib/og/cards';
 import { entryLd } from '../lib/structuredData';
 import { COLLECTION_LABELS } from '../lib/tags';
 import BaseLayout from './BaseLayout.astro';
@@ -14,8 +15,7 @@ type Props = CollectionEntry<Collection>['data'] & {
 };
 
 const { title, description, author, pubDate, updatedDate, tags, id, collection } = Astro.props;
-const ogSlug = id.replace(/\.(md|mdx)$/, '');
-const ogImageUrl = `/og/light/${collection}/${ogSlug}.png`;
+const og: OgRef = { collection, slug: entrySlug(id) };
 
 const site = Astro.site!;
 const props = Astro.props;
@@ -29,7 +29,7 @@ const structuredData = entryLd({
 	pubDate,
 	updatedDate,
 	tags,
-	images: [...('contentImages' in props ? props.contentImages : []), new URL(ogImageUrl, site).href],
+	images: [...('contentImages' in props ? props.contentImages : []), new URL(ogImagePath(og, 'wide'), site).href, new URL(ogImagePath(og, 'square'), site).href],
 	appUrl: 'url' in props ? props.url : undefined,
 });
 ---
@@ -37,7 +37,7 @@ const structuredData = entryLd({
 <BaseLayout
 	title={title}
 	description={description}
-	ogImageUrl={ogImageUrl}
+	og={og}
 	structuredData={structuredData}
 >
 	<nav aria-label="パンくずリスト" class="mx-auto mb-6 max-w-3xl text-sm">
