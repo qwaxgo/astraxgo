@@ -3,10 +3,15 @@ import type { OGImageOptions } from 'astro-og-canvas';
 import { SITE_AUTHOR } from '../../consts';
 import { SITE_TIME_ZONE } from '../../lib/dates';
 
-/** Noto Sans JP (latin + japanese) from fontsource CDN */
+/**
+ * Noto Sans JP (latin + japanese), static Regular and Bold from the official noto-cjk release.
+ * fontsource's files are cut from the variable font and named "Noto Sans JP Thin" inside,
+ * so CanvasKit never matched them to `families: ['Noto Sans JP']` and Japanese came out as boxes.
+ */
+const NOTO_CJK_JP = 'https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@Sans2.004/Sans/SubsetOTF/JP';
 export const NOTO_SANS_JP_FONTS = [
-	'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-jp@5/files/noto-sans-jp-japanese-400-normal.woff',
-	'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-jp@5/files/noto-sans-jp-latin-700-normal.woff',
+	`${NOTO_CJK_JP}/NotoSansJP-Regular.otf`,
+	`${NOTO_CJK_JP}/NotoSansJP-Bold.otf`,
 ];
 
 export type GalleryPageEntry = CollectionEntry<'blog' | 'pictures' | 'pixelarts' | 'mcskins' | 'apps'>;
