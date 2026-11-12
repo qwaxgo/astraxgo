@@ -22,9 +22,10 @@ const { title, description, og = pageRefFor(Astro.url.pathname) } = Astro.props;
 const tabTitle = documentTitle(title);
 const cardTitle = title ?? SITE_TITLE;
 
-// Landscape first: most link previews use the first og:image. The square one follows
-// for apps that crop to a square.
-const ogImages = (['wide', 'square'] as const).map(format => ({
+// Only the landscape card: Discord shows every og:image as a gallery, so a second
+// (square) one turned the preview into two images. The square card is still built and
+// listed in the JSON-LD images, and can be saved from /og/square/ for Instagram.
+const ogImages = (['wide'] as const).map(format => ({
 	url: new URL(ogImagePath(og, format), Astro.site),
 	...OG_FORMATS[format],
 }));
